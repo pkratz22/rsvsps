@@ -1,10 +1,4 @@
 Fix row sorting:
-  If Season column contains "season":
-    Then Season, Team, or Career = 1
-  Else If Season column contains "Career":
-    Then Season, Team, or Career = 2
-  Else:
-    Then Season, Team, or Career = 0
   Sort by Season, Team, or Career
   If Season, Team, or Career = 0:
     Then sort by Season
