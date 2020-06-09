@@ -1,6 +1,4 @@
 Fix row sorting:
-  Adjust RS/PS column so RS = 0 and PS = 1
-  Create new columns: Season, Team, or Career
   If Season column contains "season":
     Then Season, Team, or Career = 1
   Else If Season column contains "Career":
@@ -10,14 +8,13 @@ Fix row sorting:
   Sort by Season, Team, or Career
   If Season, Team, or Career = 0:
     Then sort by Season
-    Then sort by RS/PS
+    Then sort by RS/PS (opposite)
   If Season, Team, or Career = 1:
     Then sort by Tm
-    Then sort by RS/PS
+    Then sort by RS/PS (opposite)
   If Season, Team, or Career = 2:
-    Then sort by RS/PS
+    Then sort by RS/PS (opposite)
   Delete Season, Team, or Career Column
-  Adjust RS/PS column so 0 = Regular Season and 1 = Post-Season
   
 Test on per min, per poss, and advanced
 Add rows that contain differences between RS & PS
