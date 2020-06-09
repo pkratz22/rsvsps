@@ -48,7 +48,8 @@ perGameDF = pd.DataFrame(perGameData, columns = perGameColumns)
 perGameDF.replace('', np.nan, inplace = True)
 perGameDF.dropna(subset=['Season'], inplace=True)
 # sorting
-perGameDF.sort_values(by=['Season', 'Tm'], inplace=True)
+perGameDF['Season or Summary'] = perGameDF['Season'].str.contains("season|Career")
+perGameDF.sort_values(by=['Season or Summary','Season', 'Tm', 'RS or PS'], inplace=True)
 
 
 print(perGameDF)
