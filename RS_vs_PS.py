@@ -48,8 +48,12 @@ perGameDF = pd.DataFrame(perGameData, columns = perGameColumns)
 perGameDF.replace('', np.nan, inplace = True)
 perGameDF.dropna(subset=['Season'], inplace=True)
 # sorting
-perGameDF['Season or Summary'] = perGameDF['Season'].str.contains("season|Career")
-perGameDF.sort_values(by=['Season or Summary','Season', 'Tm', 'RS or PS'], inplace=True)
+
+conditions = [
+    (perGameDF['Season'].str.contains("season")),
+    (perGameDF['Season'].str.contains("Career"))]
+choices = [1, 2]
+perGameDF['Season, Team, or Career'] = np.select(conditions, choices, default = 0)
 
 
 print(perGameDF)
