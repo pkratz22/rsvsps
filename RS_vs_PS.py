@@ -45,8 +45,10 @@ perGameData = RS+PS
 perGameDF = pd.DataFrame(perGameData, columns = perGameColumns)
 
 # remove empty rows
+
 perGameDF.replace('', np.nan, inplace = True)
 perGameDF.dropna(subset=['Season'], inplace=True)
+
 # sorting
 
 conditions = [
@@ -55,6 +57,7 @@ conditions = [
 choices = [1, 2]
 perGameDF['Season, Team, or Career'] = np.select(conditions, choices, default = 0)
 
+perGameDF.sort_values(by=['Season, Team, or Career', 'Season', 'RS or PS'], ascending = [True, True, False], inplace = True)
 
 print(perGameDF)
 
