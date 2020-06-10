@@ -1,15 +1,6 @@
-Fix row sorting:
-  Sort by Season, Team, or Career
-  If Season, Team, or Career = 0:
-    Then sort by Season
-    Then sort by RS/PS (opposite)
-  If Season, Team, or Career = 1:
-    Then sort by Tm
-    Then sort by RS/PS (opposite)
-  If Season, Team, or Career = 2:
-    Then sort by RS/PS (opposite)
-  Delete Season, Team, or Career Column
-  
+Do tests on sorting:
+  Try Tracy McGrady, PJ Tucker, LeBron, and a few mroe
+Clean up code
 Test on per min, per poss, and advanced
 Add rows that contain differences between RS & PS
 Use red-green scale to show whether player gets better or worse in PS
