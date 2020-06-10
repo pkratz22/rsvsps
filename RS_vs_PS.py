@@ -53,13 +53,23 @@ perGameDF.dropna(subset=['Season'], inplace=True)
 
 perGameDF['Season, Team, or Career'] = np.select([(perGameDF['Season'].str.contains("season")),(perGameDF['Season'].str.contains("Career"))], [1, 2], default = 0)
 perGameDF['Sort'] = np.select([perGameDF['Season, Team, or Career'] == 0, perGameDF['Season, Team, or Career'] == 1, perGameDF['Season, Team, or Career'] == 2], [perGameDF['Season'], perGameDF['Tm'], 'ZZZ'], default = 'Error')
+
 perGameDF.sort_values(by=['Season, Team, or Career', 'Sort', 'RS or PS'], ascending = [True, True, False], inplace = True)
-perGameDF.drop(columns = ['Season, Team, or Career', 'Sort'], inplace = True)
+
+# add rows for differences
+
+# add row to end of dataframe
+perGameDF = perGameDF.append(pd.Series(), ignore_index = True)
+
+# add row to separate years/teams/career
+
+for index in reversed(range(len(perGameDF)-1)): 
+    print(index)
+    if(perGameDF.loc[index, 'Sort'] == perGameDF.loc[index+1, 'Sort']):
+        print(True)
+    else:
+        print(False)
+
+#perGameDF.drop(columns = ['Sort'], inplace = True)
 
 print(perGameDF)
-
-# per Min
-
-# per Poss
-
-# advanced
