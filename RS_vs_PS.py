@@ -51,13 +51,13 @@ perGameDF.dropna(subset=['Season'], inplace=True)
 
 # sorting
 
-conditions = [
-    (perGameDF['Season'].str.contains("season")),
-    (perGameDF['Season'].str.contains("Career"))]
-choices = [1, 2]
-perGameDF['Season, Team, or Career'] = np.select(conditions, choices, default = 0)
+perGameDF['Season, Team, or Career'] = np.select([(perGameDF['Season'].str.contains("season")),(perGameDF['Season'].str.contains("Career"))], [1, 2], default = 0)
 
-perGameDF.sort_values(by=['Season, Team, or Career', 'Season', 'RS or PS'], ascending = [True, True, False], inplace = True)
+perGameDF['Sort'] = np.select([perGameDF['Season, Team, or Career'] == 0, perGameDF['Season, Team, or Career'] == 1, perGameDF['Season, Team, or Career'] == 2], [perGameDF['Season'], perGameDF['Tm'], 'ZZZ'], default = 'Error')
+
+perGameDF.sort_values(by=['Season, Team, or Career', 'Sort', 'RS or PS'], ascending = [True, True, False], inplace = True)
+
+perGameDF.drop(columns = ['Season, Team, or Career', 'Sort'], inplace = True)
 
 print(perGameDF)
 
