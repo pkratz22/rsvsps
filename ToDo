@@ -1,4 +1,3 @@
-Re-write code to use 2D lists instead of dataframes
 Clean up code
 Add rows that contain differences between RS & PS
 Use red-green scale to show whether player gets better or worse in PS
