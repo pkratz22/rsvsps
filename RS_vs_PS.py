@@ -1,10 +1,9 @@
 # imports
 
+from bs4 import BeautifulSoup, SoupStrainer, Comment
 import re
 import requests
-from bs4 import BeautifulSoup, SoupStrainer, Comment
-import numpy as np
-import pandas as pd
+import operator
 
 # get URL for player
 
@@ -38,40 +37,27 @@ PS = [[cell.text for cell in row.find_all(["th","td"])] for row in PSperGame.fin
 del RS[0]
 del PS[0]
 for year in RS:
+    if year[0] == "":
+        RS.remove(year)
+for year in PS:
+    if year[0] == "":
+        PS.remove(year)
+RS = list(filter(None, RS))
+PS = list(filter(None, PS))
+for year in RS:
     year.extend(['RS'])
 for year in PS:
     year.extend(['PS'])
-perGameData = RS+PS
-perGameDF = pd.DataFrame(perGameData, columns = perGameColumns)
+perGame = RS+PS
 
-# remove empty rows
+for year in perGame:
+    if "season" in year[0]:
+        year.insert(len(year), "1"+year[2])
+    elif "Career" in year[0]:
+        year.insert(len(year), "2")
+    else:
+        year.insert(len(year), "0"+year[0])
 
-perGameDF.replace('', np.nan, inplace = True)
-perGameDF.dropna(subset=['Season'], inplace=True)
+perGame = sorted(perGame, key=lambda x: (x[31]))
 
-# sorting
-
-perGameDF['Season, Team, or Career'] = np.select([(perGameDF['Season'].str.contains("season")),(perGameDF['Season'].str.contains("Career"))], [1, 2], default = 0)
-perGameDF['Sort'] = np.select([perGameDF['Season, Team, or Career'] == 0, perGameDF['Season, Team, or Career'] == 1, perGameDF['Season, Team, or Career'] == 2], [perGameDF['Season'], perGameDF['Tm'], 'ZZZ'], default = 'Error')
-
-perGameDF.sort_values(by=['Season, Team, or Career', 'Sort', 'RS or PS'], ascending = [True, True, False], inplace = True)
-
-# add rows for differences
-
-# add row to end of dataframe
-perGameDF = perGameDF.append(pd.Series(), ignore_index = True)
-
-# add row to separate years/teams/career
-
-numDiffRows = -1
-
-for index in range(len(perGameDF)-1, 1, -1):
-    if(perGameDF.loc[index, 'Sort'] != perGameDF.loc[index-1, 'Sort']):
-        numDiffRows+=1
-        
-for i in range(numDiffRows):
-    perGameDF = perGameDF.append(pd.Series(), ignore_index = True)
-
-perGameDF.drop(columns = ['Sort'], inplace = True)
-
-print(perGameDF)
+print(perGame)
