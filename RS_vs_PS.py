@@ -63,16 +63,15 @@ perGameDF = perGameDF.append(pd.Series(), ignore_index = True)
 
 # add row to separate years/teams/career
 
+numDiffRows = -1
+
 for index in range(len(perGameDF)-1, 1, -1):
-    print(index)
-    if(perGameDF.loc[index, 'Sort'] == perGameDF.loc[index-1, 'Sort']):
-        print(True)
-    else:
-        print(False)
+    if(perGameDF.loc[index, 'Sort'] != perGameDF.loc[index-1, 'Sort']):
+        numDiffRows+=1
+        
+for i in range(numDiffRows):
+    perGameDF = perGameDF.append(pd.Series(), ignore_index = True)
 
-
-
-
-#perGameDF.drop(columns = ['Sort'], inplace = True)
+perGameDF.drop(columns = ['Sort'], inplace = True)
 
 print(perGameDF)
