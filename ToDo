@@ -1,7 +1,5 @@
-Do tests on sorting:
-  Try Tracy McGrady, PJ Tucker, LeBron, and a few mroe
+Re-write code to use 2D lists instead of dataframes
 Clean up code
-Test on per min, per poss, and advanced
 Add rows that contain differences between RS & PS
 Use red-green scale to show whether player gets better or worse in PS
 Add case if player ID does not exist
