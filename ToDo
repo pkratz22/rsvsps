@@ -1,3 +1,4 @@
+Handle 404 exception
 Figure out how to properly do test cases
 Make code follow PEP 8
 Remove sorting column
