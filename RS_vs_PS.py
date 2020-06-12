@@ -1,16 +1,15 @@
 # imports
-
 from bs4 import BeautifulSoup, SoupStrainer, Comment
 import re
 import requests
 import operator
 
-# profiling
-
-import cProfile, pstats, io
+# profiling imports
+import cProfile
+import pstats
+import io
 
 def profile(fnc):
-    
     """A decorator that uses cProfile to profile a function"""
     
     def inner(*args, **kwargs):
@@ -28,61 +27,77 @@ def profile(fnc):
 
     return inner
 
-perGameColumns = ['Season', 'Age', 'Tm', 'Lg', 'Pos', 'G', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', '2P', '2PA', '2P%', 'eFG%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS', 'RS or PS']
-#perMinColumns = ['Season', 'Age', 'Tm', 'Lg', 'Pos', 'G', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', '2P', '2PA', '2P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS']
-#perPossColumns = ['Season', 'Age', 'Tm', 'Lg', 'Pos', 'G', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', '2P', '2PA', '2P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS', '', 'ORtg', 'DRtg']
-#advancedColumns = ['Season', 'Age', 'Tm', 'Pos', 'G', 'MP', 'PER', 'TS%', '3PAr', 'FTr', 'ORB%', 'DRB%', 'TRB%', 'AST%', 'STL%', 'BLK%', 'TOV', 'USG%', '', 'OWS', 'DWS', 'WS', 'WS/48', '', 'OBPM', 'DBPM', 'BPM', 'VORP']
+PER_GAME_COLUMNS = ['Season', 'Age', 'Tm', 'Lg', 'Pos', 'G', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', '2P', '2PA', '2P%', 'eFG%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS', 'RS or PS']
+#PER_MIN_COLUMNS = ['Season', 'Age', 'Tm', 'Lg', 'Pos', 'G', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', '2P', '2PA', '2P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS']
+#PER_POSS_COLUMNS = ['Season', 'Age', 'Tm', 'Lg', 'Pos', 'G', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', '2P', '2PA', '2P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS', '', 'ORtg', 'DRtg']
+#ADVANCED_COLUMNS = ['Season', 'Age', 'Tm', 'Pos', 'G', 'MP', 'PER', 'TS%', '3PAr', 'FTr', 'ORB%', 'DRB%', 'TRB%', 'AST%', 'STL%', 'BLK%', 'TOV', 'USG%', '', 'OWS', 'DWS', 'WS', 'WS/48', '', 'OBPM', 'DBPM', 'BPM', 'VORP']
 
 
 
-def determine_player_URL(playerID):
-    """Determine the Player's Page URL from playerID"""
-    playerURL = 'https://www.basketball-reference.com/players/' + playerID[0] + '/' + playerID + '.html'
-    return playerURL
+def determine_player_URL(player_ID):
+    """Determine the Player's Page URL from player's ID"""
+    player_URL = ('https://www.basketball-reference.com/players/' 
+        + player_ID[0] 
+        + '/' 
+        + player_ID 
+        + '.html')
+    return player_URL
 
-def scrape_player_page(playerURL):
+def scrape_player_page(player_URL):
     """Scrape Player Page for tables"""
-    playerPage = requests.get(playerURL).text
+    player_page = requests.get(player_URL).text
     tables = SoupStrainer('table')
-    soup = BeautifulSoup(re.sub('<!--|-->','', playerPage), 'lxml', parse_only = tables)
+    soup = BeautifulSoup(re.sub('<!--|-->','', player_page), 
+                        'lxml', parse_only = tables)
     return soup
 
 def scrape_per_game_tables(soup, label):
     """Scrape the PerGameTables from the Player Page"""
-    playoffsQualifier = ''
+    playoffs_qualifier = ''
     if label == 'PS':
-        playoffsQualifier = "playoffs_"
-    table = soup.find(id=playoffsQualifier + 'per_game')
+        playoffs_qualifier = "playoffs_"
+    table = soup.find(id=playoffs_qualifier + 'per_game')
     return table
 
 def scraped_table_to_list(table):
     """Convert the scraped table to a multidimensional list"""
-    return [[cell.text for cell in row.find_all(["th","td"])] for row in table.find_all("tr")]
+    return [[cell.text for cell in row.find_all(["th","td"])] 
+            for row in table.find_all("tr")]
 
 def delete_column_headers(list):
-    """Remove column headers as we will adjust the table and re-add them later"""
+    """Remove column headers"""
     del list[0]
     return list
 
 def remove_blank_lines(list):
-    """Remove blank lines - there is one between career and team summaries"""
+    """Remove blank lines"""
     for year in list:
         if year[0] == "":
             list.remove(year)
     return list
 
 def adjustments_for_did_not_play_seasons(list):
-    """Increase number of elements in list for seasons with Did Not Play"""
-    listExtender = [''] * 27
+    """Corrects formatting for seasons with Did Not Play"""
+    list_extender = [''] * 27
     for year in list:
         if("Did Not Play" in year[2]):
-            list.extend(listExtender)
+            list.extend(list_extender)
     return list
 
 def label_RS_or_PS(list, label):
     """Adds label of either RS or PS"""
     for year in list:
         year.extend([label])
+    return list
+
+def clean_table(soup, label):
+    """Put functions for RS and PS into one"""
+    table = scrape_per_game_tables(soup, label)
+    list = scraped_table_to_list(table)
+    delete_column_headers(list)
+    remove_blank_lines(list)
+    adjustments_for_did_not_play_seasons(list)
+    label_RS_or_PS(list, label)
     return list
 
 def combine_RS_and_PS(RS, PS):
@@ -106,15 +121,8 @@ def sort_list(list):
     list = sorted(list, key=lambda x: (x[-1]))
     return list
 
-def clean_table(soup, label):
-    """Put functions for RS and PS into one"""
-    table = scrape_per_game_tables(soup, label)
-    list = scraped_table_to_list(table)
-    delete_column_headers(list)
-    remove_blank_lines(list)
-    adjustments_for_did_not_play_seasons(list)
-    label_RS_or_PS(list, label)
-    return list
+#def add_labels(list, stat):
+#    print("HI")
 
 def main():
     playerID = input('Enter Player ID: ')
