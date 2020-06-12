@@ -42,6 +42,10 @@ for year in RS:
 for year in PS:
     if year[0] == "":
         PS.remove(year)
+for year in RS:
+    if("Did Not Play" in year[2]):
+        for i in range(27):
+            year.append("")
 RS = list(filter(None, RS))
 PS = list(filter(None, PS))
 for year in RS:
