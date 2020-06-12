@@ -1,4 +1,5 @@
 Figure out how to properly do test cases
+Make code follow PEP 8
 Remove sorting column
 Add rows that contain differences between RS & PS
 Use red-green scale to show whether player gets better or worse in PS
