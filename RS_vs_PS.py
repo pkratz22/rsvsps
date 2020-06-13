@@ -55,12 +55,12 @@ def scrape_player_page(player_URL):
     return soup
 
 
-def scrape_per_game_tables(soup, label):
+def scrape_per_game_tables(soup, label, table_type):
     """Scrape the PerGameTables from the Player Page"""
     playoffs_qualifier = ""
     if label == "PS":
         playoffs_qualifier = "playoffs_"
-    table = soup.find(id=playoffs_qualifier + "per_game")
+    table = soup.find(id=playoffs_qualifier + table_type)
     return table
 
 
@@ -108,9 +108,9 @@ def label_RS_or_PS(list, label):
     return list
 
 
-def clean_table(soup, label):
+def clean_table(soup, label, table_type):
     """Put functions for RS and PS into one"""
-    table = scrape_per_game_tables(soup, label)
+    table = scrape_per_game_tables(soup, label, table_type)
     if table is None:
         return
     list = scraped_table_to_list(table)
@@ -158,11 +158,11 @@ def remove_sorting_column(list):
     return list
 
 
-def main(playerID):
-    playerURL = determine_player_URL(playerID)
-    playerPage = scrape_player_page(playerURL)
-    RS = clean_table(playerPage, "RS")
-    PS = clean_table(playerPage, "PS")
+def main(player_ID):
+    player_URL = determine_player_URL(player_ID)
+    player_page = scrape_player_page(player_URL)
+    RS = clean_table(player_page, "RS", "per_game")
+    PS = clean_table(player_page, "PS", "per_game")
     combined = combine_RS_and_PS(RS, PS)
     column_headers = scrape_column_headers(combined)
     combined = remove_column_headers(combined)
@@ -173,5 +173,5 @@ def main(playerID):
 
 
 if __name__ == "__main__":
-    playerID = "petrodr01"
-    print(main(playerID))
+    player_ID = "petrodr01"
+    print(main(player_ID))
