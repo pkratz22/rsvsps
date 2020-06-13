@@ -30,44 +30,6 @@ def profile(fnc):
     return inner
 
 
-PER_GAME_COLUMNS = [
-    "Season",
-    "Age",
-    "Tm",
-    "Lg",
-    "Pos",
-    "G",
-    "GS",
-    "MP",
-    "FG",
-    "FGA",
-    "FG%",
-    "3P",
-    "3PA",
-    "3P%",
-    "2P",
-    "2PA",
-    "2P%",
-    "eFG%",
-    "FT",
-    "FTA",
-    "FT%",
-    "ORB",
-    "DRB",
-    "TRB",
-    "AST",
-    "STL",
-    "BLK",
-    "TOV",
-    "PF",
-    "PTS",
-    "RS or PS",
-]
-# PER_MIN_COLUMNS = ['Season', 'Age', 'Tm', 'Lg', 'Pos', 'G', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', '2P', '2PA', '2P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS']
-# PER_POSS_COLUMNS = ['Season', 'Age', 'Tm', 'Lg', 'Pos', 'G', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', '2P', '2PA', '2P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS', '', 'ORtg', 'DRtg']
-# ADVANCED_COLUMNS = ['Season', 'Age', 'Tm', 'Pos', 'G', 'MP', 'PER', 'TS%', '3PAr', 'FTr', 'ORB%', 'DRB%', 'TRB%', 'AST%', 'STL%', 'BLK%', 'TOV', 'USG%', '', 'OWS', 'DWS', 'WS', 'WS/48', '', 'OBPM', 'DBPM', 'BPM', 'VORP']
-
-
 def determine_player_URL(player_ID):
     """Determine the Player's Page URL from player's ID"""
     player_URL = (
@@ -157,6 +119,8 @@ def clean_table(soup, label):
     remove_blank_lines(list)
     adjustments_for_did_not_play_seasons(list)
     label_RS_or_PS(list, label)
+    if label == 'RS':
+        list = [column_headers] + list
     return list
 
 
@@ -194,11 +158,13 @@ def main(playerID):
     RS = clean_table(playerPage, "RS")
     PS = clean_table(playerPage, "PS")
     combined = combine_RS_and_PS(RS, PS)
+    column_headers = scrape_column_headers(combined)
+    remove_column_headers(combined)
     add_sorting_qualifier(combined)
     sort_list(combined)
-    return combined
+    return column_headers + combined
 
 
 if __name__ == "__main__":
-    playerID = "grahade01"
+    playerID = "ellisjo01"
     print(main(playerID))
