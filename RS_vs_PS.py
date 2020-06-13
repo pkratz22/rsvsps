@@ -119,7 +119,7 @@ def clean_table(soup, label):
     list = remove_blank_lines(list)
     list = adjustments_for_did_not_play_seasons(list)
     list = label_RS_or_PS(list, label)
-    if label == 'RS':
+    if label == "RS":
         list = [column_headers] + list
     return list
 
@@ -151,6 +151,13 @@ def sort_list(list):
     return sorted(list, key=lambda x: x[-1])
 
 
+def remove_sorting_column(list):
+    """Remove sorting qualifier column"""
+    for entry in list:
+        del entry[-1]
+    return list
+
+
 def main(playerID):
     playerURL = determine_player_URL(playerID)
     playerPage = scrape_player_page(playerURL)
@@ -161,9 +168,10 @@ def main(playerID):
     combined = remove_column_headers(combined)
     combined = add_sorting_qualifier(combined)
     combined = sort_list(combined)
+    combined = remove_sorting_column(combined)
     return [column_headers] + combined
 
 
 if __name__ == "__main__":
-    playerID = "jamesle01"
+    playerID = "petrodr01"
     print(main(playerID))
