@@ -1,6 +1,5 @@
-Handle 404 exception
-Figure out how to properly do test cases
-Make code follow PEP 8
+Handle case where player has not made the post-season yet
+Change how header row works (get it from web-page instead of having constants)
 Remove sorting column
 Add rows that contain differences between RS & PS
 Use red-green scale to show whether player gets better or worse in PS
