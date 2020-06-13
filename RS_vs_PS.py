@@ -102,6 +102,7 @@ def scrape_per_game_tables(soup, label):
     return table
 
 
+
 def scraped_table_to_list(table):
     """Convert the scraped table to a multidimensional list"""
     return [
@@ -143,6 +144,8 @@ def label_RS_or_PS(list, label):
 def clean_table(soup, label):
     """Put functions for RS and PS into one"""
     table = scrape_per_game_tables(soup, label)
+    if table is None:
+        return
     list = scraped_table_to_list(table)
     delete_column_headers(list)
     remove_blank_lines(list)
@@ -153,7 +156,11 @@ def clean_table(soup, label):
 
 def combine_RS_and_PS(RS, PS):
     """Combine Regular Season and Post-Season Data into one table"""
-    total = RS + PS
+    total = []
+    if RS is not None:
+        total += RS
+    if PS is not None:
+        total += PS
     return total
 
 
@@ -187,5 +194,5 @@ def main(playerID):
 
 
 if __name__ == "__main__":
-    playerID = "banana"
+    playerID = "grahade01"
     print(main(playerID))
