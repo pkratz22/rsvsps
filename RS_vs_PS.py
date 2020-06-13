@@ -102,7 +102,6 @@ def scrape_per_game_tables(soup, label):
     return table
 
 
-
 def scraped_table_to_list(table):
     """Convert the scraped table to a multidimensional list"""
     return [
@@ -111,7 +110,13 @@ def scraped_table_to_list(table):
     ]
 
 
-def delete_column_headers(list):
+def scrape_column_headers(list):
+    """Store column headers"""
+    column_headers = list[0]
+    return column_headers
+
+
+def remove_column_headers(list):
     """Remove column headers"""
     del list[0]
     return list
@@ -147,7 +152,8 @@ def clean_table(soup, label):
     if table is None:
         return
     list = scraped_table_to_list(table)
-    delete_column_headers(list)
+    column_headers = scrape_column_headers(list)
+    remove_column_headers(list)
     remove_blank_lines(list)
     adjustments_for_did_not_play_seasons(list)
     label_RS_or_PS(list, label)
