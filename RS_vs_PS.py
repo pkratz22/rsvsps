@@ -115,10 +115,10 @@ def clean_table(soup, label):
         return
     list = scraped_table_to_list(table)
     column_headers = scrape_column_headers(list)
-    remove_column_headers(list)
-    remove_blank_lines(list)
-    adjustments_for_did_not_play_seasons(list)
-    label_RS_or_PS(list, label)
+    list = remove_column_headers(list)
+    list = remove_blank_lines(list)
+    list = adjustments_for_did_not_play_seasons(list)
+    list = label_RS_or_PS(list, label)
     if label == 'RS':
         list = [column_headers] + list
     return list
@@ -148,8 +148,7 @@ def add_sorting_qualifier(list):
 
 def sort_list(list):
     """Sort list based on qualifer"""
-    list = sorted(list, key=lambda x: (x[-1]))
-    return list
+    return sorted(list, key=lambda x: x[-1])
 
 
 def main(playerID):
@@ -159,12 +158,12 @@ def main(playerID):
     PS = clean_table(playerPage, "PS")
     combined = combine_RS_and_PS(RS, PS)
     column_headers = scrape_column_headers(combined)
-    remove_column_headers(combined)
-    add_sorting_qualifier(combined)
-    sort_list(combined)
-    return column_headers + combined
+    combined = remove_column_headers(combined)
+    combined = add_sorting_qualifier(combined)
+    combined = sort_list(combined)
+    return [column_headers] + combined
 
 
 if __name__ == "__main__":
-    playerID = "ellisjo01"
+    playerID = "jamesle01"
     print(main(playerID))
