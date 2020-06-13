@@ -1,4 +1,3 @@
-Handle case where player has not made the post-season yet
 Change how header row works (get it from web-page instead of having constants)
 Remove sorting column
 Add rows that contain differences between RS & PS
