@@ -161,9 +161,7 @@ def remove_sorting_column(list):
     return list
 
 
-def player_single_table_type(player_ID, table_type):
-    player_URL = determine_player_URL(player_ID)
-    player_page = scrape_player_page(player_URL)
+def player_single_table_type(player_page, table_type):
     RS = clean_table(player_page, "RS", table_type)
     PS = clean_table(player_page, "PS", table_type)
     combined = combine_RS_and_PS(RS, PS)
@@ -176,10 +174,12 @@ def player_single_table_type(player_ID, table_type):
 
 
 def main(player_ID):
-    per_game = player_single_table_type(player_ID, "per_game")
-    per_minute = player_single_table_type(player_ID, "per_minute")
-    per_poss = player_single_table_type(player_ID, "per_poss")
-    advanced = player_single_table_type(player_ID, "advanced")
+    player_URL = determine_player_URL(player_ID)
+    player_page = scrape_player_page(player_URL)
+    per_game = player_single_table_type(player_page, "per_game")
+    per_minute = player_single_table_type(player_page, "per_minute")
+    per_poss = player_single_table_type(player_page, "per_poss")
+    advanced = player_single_table_type(player_page, "advanced")
     all_tables = [per_game, per_minute, per_poss, advanced]
     return all_tables
 
