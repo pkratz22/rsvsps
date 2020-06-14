@@ -1,4 +1,3 @@
-Make so don't have to rescrape page for each table
 Add rows that contain differences between RS & PS
 Use red-green scale to show whether player gets better or worse in PS
 Add case if player ID does not exist
