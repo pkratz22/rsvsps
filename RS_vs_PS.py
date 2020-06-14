@@ -74,13 +74,16 @@ def scraped_table_to_list(table):
 
 def scrape_column_headers(list):
     """Store column headers"""
-    column_headers = list[0]
+    column_headers = []
+    if list:
+        column_headers = list[0]
     return column_headers
 
 
 def remove_column_headers(list):
     """Remove column headers"""
-    del list[0]
+    if list:
+        del list[0]
     return list
 
 
@@ -158,11 +161,11 @@ def remove_sorting_column(list):
     return list
 
 
-def main(player_ID):
+def player_single_table_type(player_ID, table_type):
     player_URL = determine_player_URL(player_ID)
     player_page = scrape_player_page(player_URL)
-    RS = clean_table(player_page, "RS", "per_game")
-    PS = clean_table(player_page, "PS", "per_game")
+    RS = clean_table(player_page, "RS", table_type)
+    PS = clean_table(player_page, "PS", table_type)
     combined = combine_RS_and_PS(RS, PS)
     column_headers = scrape_column_headers(combined)
     combined = remove_column_headers(combined)
@@ -172,6 +175,15 @@ def main(player_ID):
     return [column_headers] + combined
 
 
+def main(player_ID):
+    per_game = player_single_table_type(player_ID, "per_game")
+    per_minute = player_single_table_type(player_ID, "per_minute")
+    per_poss = player_single_table_type(player_ID, "per_poss")
+    advanced = player_single_table_type(player_ID, "advanced")
+    all_tables = [per_game, per_minute, per_poss, advanced]
+    return all_tables
+
+
 if __name__ == "__main__":
-    player_ID = "petrodr01"
+    player_ID = "cousybo01"
     print(main(player_ID))
