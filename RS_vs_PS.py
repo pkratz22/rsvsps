@@ -57,9 +57,7 @@ def scrape_player_page(player_URL):
 
 def scrape_per_game_tables(soup, label, table_type):
     """Scrape the PerGameTables from the Player Page"""
-    playoffs_qualifier = ""
-    if label == "PS":
-        playoffs_qualifier = "playoffs_"
+    playoffs_qualifier = "playoffs_" if label == "PS" else ""
     table = soup.find(id=playoffs_qualifier + table_type)
     return table
 
@@ -74,9 +72,7 @@ def scraped_table_to_list(table):
 
 def scrape_column_headers(list):
     """Store column headers"""
-    column_headers = []
-    if list:
-        column_headers = list[0]
+    column_headers = list[0] if list else []
     return column_headers
 
 
@@ -162,6 +158,7 @@ def remove_sorting_column(list):
 
 
 def player_single_table_type(player_page, table_type):
+    """Get player info for per game, min, poss, or advanced"""
     RS = clean_table(player_page, "RS", table_type)
     PS = clean_table(player_page, "PS", table_type)
     combined = combine_RS_and_PS(RS, PS)
