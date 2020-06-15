@@ -57,7 +57,9 @@ def scrape_player_page(player_URL):
 
 def scrape_per_game_tables(soup, label, table_type):
     """Scrape the PerGameTables from the Player Page"""
-    playoffs_qualifier = "playoffs_" if label == "PS" else ""
+    playoffs_qualifier = ""
+    if label == "PS":
+        playoffs_qualifier = "playoffs_"
     table = soup.find(id=playoffs_qualifier + table_type)
     return table
 
@@ -72,7 +74,9 @@ def scraped_table_to_list(table):
 
 def scrape_column_headers(list):
     """Store column headers"""
-    column_headers = list[0] if list else []
+    column_headers = []
+    if list:
+        column_headers = list[0]
     return column_headers
 
 
@@ -157,8 +161,15 @@ def remove_sorting_column(list):
     return list
 
 
+def add_blank_lines(list):
+    """Add blank lines that will store differences"""
+    for row in range(len(list)-1):
+        if(list[row][0]!="") & (list[row+1][0]!="") & (list[row][-1] != list[row+1][-1]):
+            list = list[:row+1] + [[""]*len(list[0])] + list[row+1:]
+    return list
+    
+
 def player_single_table_type(player_page, table_type):
-    """Get player info for per game, min, poss, or advanced"""
     RS = clean_table(player_page, "RS", table_type)
     PS = clean_table(player_page, "PS", table_type)
     combined = combine_RS_and_PS(RS, PS)
@@ -166,6 +177,8 @@ def player_single_table_type(player_page, table_type):
     combined = remove_column_headers(combined)
     combined = add_sorting_qualifier(combined)
     combined = sort_list(combined)
+    combined = combined + [[""]*len(combined[0])]
+    combined = add_blank_lines(combined)
     combined = remove_sorting_column(combined)
     return [column_headers] + combined
 
@@ -182,5 +195,5 @@ def main(player_ID):
 
 
 if __name__ == "__main__":
-    player_ID = "cousybo01"
+    player_ID = "grahade01"
     print(main(player_ID))
