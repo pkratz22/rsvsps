@@ -163,9 +163,13 @@ def remove_sorting_column(list):
 
 def add_blank_lines(list):
     """Add blank lines that will store differences"""
-    for row in range(len(list)-1):
+    upper_bound = len(list)-1
+    row = 0
+    while row < upper_bound:
         if(list[row][0]!="") & (list[row+1][0]!="") & (list[row][-1] != list[row+1][-1]):
             list = list[:row+1] + [[""]*len(list[0])] + list[row+1:]
+            upper_bound +=1
+        row += 1
     return list
     
 
@@ -195,5 +199,5 @@ def main(player_ID):
 
 
 if __name__ == "__main__":
-    player_ID = "grahade01"
+    player_ID = "cousybo01"
     print(main(player_ID))
