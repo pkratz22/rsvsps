@@ -160,6 +160,7 @@ def remove_sorting_column(list):
 
 def add_blank_lines(list):
     """Add blank lines that will store differences"""
+    combined = combined + [[""] * len(combined[0])]
     upper_bound = len(list) - 1
     row = 0
     while row < upper_bound:
@@ -184,7 +185,6 @@ def player_single_table_type(player_page, table_type):
     combined = remove_column_headers(combined)
     combined = add_sorting_qualifier(combined)
     combined = sort_list(combined)
-    combined = combined + [[""] * len(combined[0])]
     combined = add_blank_lines(combined)
     combined = remove_sorting_column(combined)
     return [column_headers] + combined
