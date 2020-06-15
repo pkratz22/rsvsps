@@ -160,7 +160,7 @@ def remove_sorting_column(list):
 
 def add_blank_lines(list):
     """Add blank lines that will store differences"""
-    combined = combined + [[""] * len(combined[0])]
+    list = list + [[""] * len(list[0])]
     upper_bound = len(list) - 1
     row = 0
     while row < upper_bound:
