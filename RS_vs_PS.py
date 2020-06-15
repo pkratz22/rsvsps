@@ -1,37 +1,11 @@
 # imports
-from bs4 import BeautifulSoup, SoupStrainer, Comment
+from bs4 import BeautifulSoup, SoupStrainer
 import re
 import requests
 import operator
 import sys
 
-# profiling imports
-import cProfile
-import pstats
-import io
-from memory_profiler import profile
 
-
-# def profile(fnc):
-#    """A decorator that uses cProfile to profile a function"""
-#
-#    def inner(*args, **kwargs):
-#
-#        pr = cProfile.Profile()
-#        pr.enable()
-#        retval = fnc(*args, **kwargs)
-#        pr.disable()
-#        s = io.StringIO()
-#        sortby = "cumulative"
-#        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-#        ps.print_stats()
-#        print(s.getvalue())
-#        return retval
-#
-#    return inner
-
-
-@profile
 def determine_player_URL(player_ID):
     """Determine the Player's Page URL from player's ID"""
     return "https://www.basketball-reference.com/players/{last_initial}/{ID}.html".format(
@@ -83,18 +57,15 @@ def remove_column_headers(list):
 
 def remove_blank_lines(list):
     """Remove blank lines"""
-    for year in list:
-        if year[0] == "":
-            list.remove(year)
-    return list
+    return [year for year in list if year[0] != ""]
 
 
 def adjustments_for_did_not_play_seasons(list):
     """Corrects formatting for seasons with Did Not Play"""
-    list_extender = [""] * 27
-    for year in list:
-        if "Did Not Play" in year[2]:
-            year.extend(list_extender)
+    list_extender = [""] * len(list[0])
+    list = [
+        [*year, *list_extender] if "Did Not Play" in year[2] else year for year in list
+    ]
     return list
 
 
