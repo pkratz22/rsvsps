@@ -55,7 +55,7 @@ def scrape_player_page(player_URL):
     return soup
 
 
-def scrape_per_game_tables(soup, label, table_type):
+def scrape_tables(soup, label, table_type):
     """Scrape the PerGameTables from the Player Page"""
     playoffs_qualifier = ""
     if label == "PS":
@@ -110,7 +110,7 @@ def label_RS_or_PS(list, label):
 
 def clean_table(soup, label, table_type):
     """Put functions for RS and PS into one"""
-    table = scrape_per_game_tables(soup, label, table_type)
+    table = scrape_tables(soup, label, table_type)
     if table is None:
         return
     list = scraped_table_to_list(table)
@@ -189,7 +189,7 @@ def player_single_table_type(player_page, table_type):
     combined = remove_sorting_column(combined)
     return [column_headers] + combined
 
-
+@profile
 def main(player_ID):
     player_URL = determine_player_URL(player_ID)
     player_page = scrape_player_page(player_URL)
