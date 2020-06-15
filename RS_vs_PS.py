@@ -199,7 +199,6 @@ def main(player_ID):
     advanced = player_single_table_type(player_page, "advanced")
     all_tables = [per_game, per_minute, per_poss, advanced]
     return all_tables
-    return per_poss
 
 
 if __name__ == "__main__":
