@@ -1,4 +1,3 @@
-Fix line 184 for per_poss for players with no per_poss data
 Add rows that contain differences between RS & PS
 Use red-green scale to show whether player gets better or worse in PS
 Add case if player ID does not exist
