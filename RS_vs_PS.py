@@ -9,37 +9,34 @@ import sys
 import cProfile
 import pstats
 import io
+from memory_profiler import profile
 
 
-def profile(fnc):
-    """A decorator that uses cProfile to profile a function"""
+# def profile(fnc):
+#    """A decorator that uses cProfile to profile a function"""
+#
+#    def inner(*args, **kwargs):
+#
+#        pr = cProfile.Profile()
+#        pr.enable()
+#        retval = fnc(*args, **kwargs)
+#        pr.disable()
+#        s = io.StringIO()
+#        sortby = "cumulative"
+#        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+#        ps.print_stats()
+#        print(s.getvalue())
+#        return retval
+#
+#    return inner
 
-    def inner(*args, **kwargs):
 
-        pr = cProfile.Profile()
-        pr.enable()
-        retval = fnc(*args, **kwargs)
-        pr.disable()
-        s = io.StringIO()
-        sortby = "cumulative"
-        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-        ps.print_stats()
-        print(s.getvalue())
-        return retval
-
-    return inner
-
-
+@profile
 def determine_player_URL(player_ID):
     """Determine the Player's Page URL from player's ID"""
-    player_URL = (
-        "https://www.basketball-reference.com/players/"
-        + player_ID[0]
-        + "/"
-        + player_ID
-        + ".html"
+    return "https://www.basketball-reference.com/players/{last_initial}/{ID}.html".format(
+        last_initial=player_ID[0], ID=player_ID
     )
-    return player_URL
 
 
 def scrape_player_page(player_URL):
@@ -189,7 +186,7 @@ def player_single_table_type(player_page, table_type):
     combined = remove_sorting_column(combined)
     return [column_headers] + combined
 
-@profile
+
 def main(player_ID):
     player_URL = determine_player_URL(player_ID)
     player_page = scrape_player_page(player_URL)
@@ -202,5 +199,5 @@ def main(player_ID):
 
 
 if __name__ == "__main__":
-    player_ID = "cousybo01"
+    player_ID = "melchbi01"
     print(main(player_ID))
