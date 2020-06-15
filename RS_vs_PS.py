@@ -74,16 +74,13 @@ def scraped_table_to_list(table):
 
 def scrape_column_headers(list):
     """Store column headers"""
-    column_headers = []
-    if list:
-        column_headers = list[0]
+    column_headers = list[0]
     return column_headers
 
 
 def remove_column_headers(list):
     """Remove column headers"""
-    if list:
-        del list[0]
+    del list[0]
     return list
 
 
@@ -163,25 +160,31 @@ def remove_sorting_column(list):
 
 def add_blank_lines(list):
     """Add blank lines that will store differences"""
-    upper_bound = len(list)-1
+    upper_bound = len(list) - 1
     row = 0
     while row < upper_bound:
-        if(list[row][0]!="") & (list[row+1][0]!="") & (list[row][-1] != list[row+1][-1]):
-            list = list[:row+1] + [[""]*len(list[0])] + list[row+1:]
-            upper_bound +=1
+        if (
+            (list[row][0] != "")
+            & (list[row + 1][0] != "")
+            & (list[row][-1] != list[row + 1][-1])
+        ):
+            list = list[: row + 1] + [[""] * len(list[0])] + list[row + 1 :]
+            upper_bound += 1
         row += 1
     return list
-    
+
 
 def player_single_table_type(player_page, table_type):
     RS = clean_table(player_page, "RS", table_type)
     PS = clean_table(player_page, "PS", table_type)
     combined = combine_RS_and_PS(RS, PS)
+    if combined == []:
+        return combined
     column_headers = scrape_column_headers(combined)
     combined = remove_column_headers(combined)
     combined = add_sorting_qualifier(combined)
     combined = sort_list(combined)
-    combined = combined + [[""]*len(combined[0])]
+    combined = combined + [[""] * len(combined[0])]
     combined = add_blank_lines(combined)
     combined = remove_sorting_column(combined)
     return [column_headers] + combined
@@ -196,6 +199,7 @@ def main(player_ID):
     advanced = player_single_table_type(player_page, "advanced")
     all_tables = [per_game, per_minute, per_poss, advanced]
     return all_tables
+    return per_poss
 
 
 if __name__ == "__main__":
