@@ -31,8 +31,7 @@ def scrape_tables(soup, label, table_type):
     playoffs_qualifier = ""
     if label == "PS":
         playoffs_qualifier = "playoffs_"
-    table = soup.find(id=playoffs_qualifier + table_type)
-    return table
+    return soup.find(id=playoffs_qualifier + table_type)
 
 
 def scraped_table_to_list(table):
@@ -51,8 +50,7 @@ def scrape_column_headers(list):
 
 def remove_column_headers(list):
     """Remove column headers"""
-    del list[0]
-    return list
+    return list[1:]
 
 
 def remove_blank_lines(list):
