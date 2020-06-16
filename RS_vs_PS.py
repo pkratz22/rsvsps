@@ -6,6 +6,10 @@ import operator
 import sys
 import pandas as pd
 
+import line_profiler
+
+profile = line_profiler.LineProfiler()
+
 
 def determine_player_URL(player_ID):
     """Determine the Player's Page URL from player's ID"""
@@ -22,7 +26,18 @@ def scrape_player_page(player_URL):
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
     player_page = page_request.text
-    tables = SoupStrainer("table")
+    tables = SoupStrainer(
+        id=[
+            "per_game",
+            "playoffs_per_game",
+            "per_minute",
+            "playoffs_per_minute",
+            "per_poss",
+            "playoffs_per_poss",
+            "advanced",
+            "playoffs_advanced",
+        ]
+    )
     soup = BeautifulSoup(re.sub("<!--|-->", "", player_page), "lxml", parse_only=tables)
     return soup
 
@@ -61,7 +76,9 @@ def remove_blank_lines(list):
 def adjustments_for_did_not_play_seasons(list):
     """Corrects formatting for seasons with Did Not Play"""
     list_extender = [""] * len(list[0])
-    return [[*year, *list_extender] if "Did Not Play" in year[2] else year for year in list]
+    return [
+        [*year, *list_extender] if "Did Not Play" in year[2] else year for year in list
+    ]
 
 
 def label_RS_or_PS(list, label):
@@ -75,7 +92,7 @@ def clean_table(soup, label, table_type):
     if table is None:
         return
     list = scraped_table_to_list(table)
-    column_headers = scrape_column_headers(list)
+    column_headers = scrape_column_headers(list) + ["RS/PS"]
     list = remove_column_headers(list)
     list = remove_blank_lines(list)
     list = adjustments_for_did_not_play_seasons(list)
@@ -159,13 +176,13 @@ def main(player_ID):
     player_URL = determine_player_URL(player_ID)
     player_page = scrape_player_page(player_URL)
     per_game = player_single_table_type(player_page, "per_game")
-    #per_minute = player_single_table_type(player_page, "per_minute")
-    #per_poss = player_single_table_type(player_page, "per_poss")
-    #advanced = player_single_table_type(player_page, "advanced")
-    #all_tables = [per_game, per_minute, per_poss, advanced]
-    return per_game
+    per_minute = player_single_table_type(player_page, "per_minute")
+    per_poss = player_single_table_type(player_page, "per_poss")
+    advanced = player_single_table_type(player_page, "advanced")
+    return advanced
 
 
 if __name__ == "__main__":
-    player_ID = "melchbi01"
-    print(main(player_ID))
+    player_ID = "petrodr01"
+    main(player_ID)
+    profile.print_stats()
