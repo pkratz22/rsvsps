@@ -4,6 +4,7 @@ import re
 import requests
 import operator
 import sys
+import pandas as pd
 
 
 def determine_player_URL(player_ID):
@@ -134,30 +135,36 @@ def add_blank_lines(list):
     return list
 
 
+def create_dataframe(list):
+    return pd.DataFrame(list)
+
+
 def player_single_table_type(player_page, table_type):
     RS = clean_table(player_page, "RS", table_type)
     PS = clean_table(player_page, "PS", table_type)
+    if (RS == None) & (PS == None):
+        return []
     combined = combine_RS_and_PS(RS, PS)
-    if combined == []:
-        return combined
     column_headers = scrape_column_headers(combined)
     combined = remove_column_headers(combined)
     combined = add_sorting_qualifier(combined)
     combined = sort_list(combined)
     combined = add_blank_lines(combined)
     combined = remove_sorting_column(combined)
-    return [column_headers] + combined
+    combined = [column_headers] + combined
+    combined = create_dataframe(combined)
+    return combined
 
 
 def main(player_ID):
     player_URL = determine_player_URL(player_ID)
     player_page = scrape_player_page(player_URL)
     per_game = player_single_table_type(player_page, "per_game")
-    per_minute = player_single_table_type(player_page, "per_minute")
-    per_poss = player_single_table_type(player_page, "per_poss")
-    advanced = player_single_table_type(player_page, "advanced")
-    all_tables = [per_game, per_minute, per_poss, advanced]
-    return all_tables
+    #per_minute = player_single_table_type(player_page, "per_minute")
+    #per_poss = player_single_table_type(player_page, "per_poss")
+    #advanced = player_single_table_type(player_page, "advanced")
+    #all_tables = [per_game, per_minute, per_poss, advanced]
+    return per_game
 
 
 if __name__ == "__main__":
