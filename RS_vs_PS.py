@@ -45,8 +45,7 @@ def scraped_table_to_list(table):
 
 def scrape_column_headers(list):
     """Store column headers"""
-    column_headers = list[0]
-    return column_headers
+    return list[0]
 
 
 def remove_column_headers(list):
