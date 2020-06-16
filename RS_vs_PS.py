@@ -114,9 +114,7 @@ def sort_list(list):
 
 def remove_sorting_column(list):
     """Remove sorting qualifier column"""
-    for entry in list:
-        del entry[-1]
-    return list
+    return [entry[:-1] for entry in list]
 
 
 def add_blank_lines(list):
