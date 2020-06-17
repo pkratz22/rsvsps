@@ -75,7 +75,7 @@ def remove_blank_lines(list):
 
 def adjustments_for_did_not_play_seasons(list):
     """Corrects formatting for seasons with Did Not Play"""
-    list_extender = [""] * len(list[0])
+    list_extender = [""] * (len(list[0])-3)
     return [
         [*year, *list_extender] if "Did Not Play" in year[2] else year for year in list
     ]
@@ -85,7 +85,7 @@ def label_RS_or_PS(list, label):
     """Adds label of either RS or PS"""
     return [[*year, label] for year in list]
 
-
+@profile
 def clean_table(soup, label, table_type):
     """Put functions for RS and PS into one"""
     table = scrape_tables(soup, label, table_type)
@@ -151,8 +151,8 @@ def add_blank_lines(list):
     return list
 
 
-def create_dataframe(list):
-    return pd.DataFrame(list)
+def create_dataframe(list, column_headers):
+    return pd.DataFrame(list, columns = column_headers)
 
 
 def player_single_table_type(player_page, table_type):
@@ -167,8 +167,7 @@ def player_single_table_type(player_page, table_type):
     combined = sort_list(combined)
     combined = add_blank_lines(combined)
     combined = remove_sorting_column(combined)
-    combined = [column_headers] + combined
-    combined = create_dataframe(combined)
+    combined = create_dataframe(combined, column_headers)
     return combined
 
 
@@ -179,10 +178,10 @@ def main(player_ID):
     per_minute = player_single_table_type(player_page, "per_minute")
     per_poss = player_single_table_type(player_page, "per_poss")
     advanced = player_single_table_type(player_page, "advanced")
-    return advanced
+    return per_game
 
 
 if __name__ == "__main__":
-    player_ID = "petrodr01"
+    player_ID = "mcgratr01"
     main(player_ID)
     profile.print_stats()
