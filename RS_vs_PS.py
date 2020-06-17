@@ -8,7 +8,12 @@ import pandas as pd
 
 import line_profiler
 
+
 profile = line_profiler.LineProfiler()
+
+
+pd.set_option("display.max_columns", None)
+pd.set_option("max_rows", None)
 
 
 def determine_player_URL(player_ID):
@@ -75,7 +80,7 @@ def remove_blank_lines(list):
 
 def adjustments_for_did_not_play_seasons(list):
     """Corrects formatting for seasons with Did Not Play"""
-    list_extender = [""] * (len(list[0])-3)
+    list_extender = [""] * (len(list[0]) - 3)
     return [
         [*year, *list_extender] if "Did Not Play" in year[2] else year for year in list
     ]
@@ -84,6 +89,7 @@ def adjustments_for_did_not_play_seasons(list):
 def label_RS_or_PS(list, label):
     """Adds label of either RS or PS"""
     return [[*year, label] for year in list]
+
 
 @profile
 def clean_table(soup, label, table_type):
@@ -152,7 +158,39 @@ def add_blank_lines(list):
 
 
 def create_dataframe(list, column_headers):
-    return pd.DataFrame(list, columns = column_headers)
+    return pd.DataFrame(list, columns=column_headers)
+
+
+def dataframe_data_types(dataframe):
+    cols = [
+        "G",
+        "GS",
+        "MP",
+        "FG",
+        "FGA",
+        "FG%",
+        "3P",
+        "3PA",
+        "3P%",
+        "2P",
+        "2PA",
+        "2P%",
+        "eFG%",
+        "FT",
+        "FTA",
+        "FT%",
+        "ORB",
+        "DRB",
+        "TRB",
+        "AST",
+        "STL",
+        "BLK",
+        "TOV",
+        "PF",
+        "PTS",
+    ]
+    dataframe[cols] = dataframe[cols].apply(pd.to_numeric, errors="coerce", axis=1)
+    return dataframe
 
 
 def player_single_table_type(player_page, table_type):
@@ -168,6 +206,8 @@ def player_single_table_type(player_page, table_type):
     combined = add_blank_lines(combined)
     combined = remove_sorting_column(combined)
     combined = create_dataframe(combined, column_headers)
+    combined = dataframe_data_types(combined)
+    print(combined.dtypes)
     return combined
 
 
@@ -183,5 +223,5 @@ def main(player_ID):
 
 if __name__ == "__main__":
     player_ID = "mcgratr01"
-    main(player_ID)
-    profile.print_stats()
+    print(main(player_ID))
+    # profile.print_stats()
