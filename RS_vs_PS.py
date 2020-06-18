@@ -161,34 +161,75 @@ def create_dataframe(list, column_headers):
     return pd.DataFrame(list, columns=column_headers)
 
 
-def dataframe_data_types(dataframe):
-    cols = [
-        "G",
-        "GS",
-        "MP",
-        "FG",
-        "FGA",
-        "FG%",
-        "3P",
-        "3PA",
-        "3P%",
-        "2P",
-        "2PA",
-        "2P%",
-        "eFG%",
-        "FT",
-        "FTA",
-        "FT%",
-        "ORB",
-        "DRB",
-        "TRB",
-        "AST",
-        "STL",
-        "BLK",
-        "TOV",
-        "PF",
-        "PTS",
-    ]
+def dataframe_data_types(dataframe, table_type):
+    cols = []
+    if (
+        table_type == "per_game"
+        or table_type == "per_minute"
+        or table_type == "per_poss"
+    ):
+        possible_columns = [
+            "G",
+            "GS",
+            "MP",
+            "FG",
+            "FGA",
+            "FG%",
+            "3P",
+            "3PA",
+            "3P%",
+            "2P",
+            "2PA",
+            "2P%",
+            "eFG%",
+            "FT",
+            "FTA",
+            "FT%",
+            "ORB",
+            "DRB",
+            "TRB",
+            "AST",
+            "STL",
+            "BLK",
+            "TOV",
+            "PF",
+            "PTS",
+            "ORtg",
+            "DRtg",
+        ]
+        for column in possible_columns:
+            if column in dataframe.columns:
+                cols += [column]
+
+    elif table_type == "advanced":
+        possible_columns = [
+            "G",
+            "MP",
+            "PER",
+            "TS%",
+            "3PAr",
+            "FTr",
+            "ORB%",
+            "DRB%",
+            "TRB%",
+            "AST%",
+            "STL%",
+            "BLK%",
+            "TOV%",
+            "USG%",
+            "OWS",
+            "DWS",
+            "WS",
+            "WS/48",
+            "OBPM",
+            "DBPM",
+            "BPM",
+            "VORP",
+        ]
+        for column in possible_columns:
+            if column in dataframe.columns:
+                cols += [column]
+
     dataframe[cols] = dataframe[cols].apply(pd.to_numeric, errors="coerce", axis=1)
     return dataframe
 
@@ -206,11 +247,10 @@ def player_single_table_type(player_page, table_type):
     combined = add_blank_lines(combined)
     combined = remove_sorting_column(combined)
     combined = create_dataframe(combined, column_headers)
-    combined = dataframe_data_types(combined)
-    print(combined.dtypes)
+    combined = dataframe_data_types(combined, table_type)
     return combined
 
-
+@profile
 def main(player_ID):
     player_URL = determine_player_URL(player_ID)
     player_page = scrape_player_page(player_URL)
@@ -223,5 +263,5 @@ def main(player_ID):
 
 if __name__ == "__main__":
     player_ID = "mcgratr01"
-    print(main(player_ID))
-    # profile.print_stats()
+    main(player_ID)
+    profile.print_stats()
