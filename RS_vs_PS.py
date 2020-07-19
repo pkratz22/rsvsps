@@ -98,7 +98,7 @@ def clean_table(soup, label, table_type):
     if table is None:
         return
     list = scraped_table_to_list(table)
-    column_headers = scrape_column_headers(list) + ["RS/PS"] + ["diff_qualifier"]
+    column_headers = scrape_column_headers(list) + ["RSPS"] + ["diff_qualifier"]
     list = remove_column_headers(list)
     list = remove_blank_lines(list)
     list = adjustments_for_did_not_play_seasons(list)
@@ -248,16 +248,16 @@ def determine_rows_to_fill(dataframe):
     """Determine rows with RS (tot) and PS"""
 
     for row in range(len(dataframe.index)):
-        if dataframe['RS/PS'].iloc[row] == "":
-            dataframe['diff_qualifier'][row] = 'X'
+        if dataframe.loc[row,'RSPS'] == "":
+            dataframe.loc[row,'diff_qualifier'] = 'X'
 
     for row in range(len(dataframe.index)):
-        if(dataframe['diff_qualifier'][row] != 'X' and (row == 0 or dataframe['diff_qualifier'][row-1] == 'X')):
-            dataframe['diff_qualifier'][row] = 'First'
+        if(dataframe.loc[row,'diff_qualifier'] != 'X' and (row == 0 or dataframe.loc[row-1,'diff_qualifier'] == 'X')):
+            dataframe.loc[row,'diff_qualifier'] = 'First'
 
     for row in range(len(dataframe.index)):
-        if(dataframe['diff_qualifier'][row] != 'X' and (dataframe['diff_qualifier'][row+1] == 'X' and dataframe['RS/PS'][row] == "PS")):
-            dataframe['diff_qualifier'][row] = 'Last'
+        if(dataframe.loc[row,'diff_qualifier'] != 'X' and (dataframe.loc[row+1,'diff_qualifier'] == 'X' and dataframe.loc[row,'RSPS'] == "PS")):
+            dataframe.loc[row,'diff_qualifier'] = 'Last'
 
     return dataframe
 
