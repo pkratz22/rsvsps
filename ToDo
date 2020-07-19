@@ -1,4 +1,4 @@
-Add rows that contain differences between RS & PS
+For necessary rows, get differences between RS and PS
 Use red-green scale to show whether player gets better or worse in PS
 Add case if player ID does not exist
 Clean up code once it works
