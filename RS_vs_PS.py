@@ -6,10 +6,10 @@ import operator
 import sys
 import pandas as pd
 
-import line_profiler
+# import line_profiler
 
 
-profile = line_profiler.LineProfiler()
+# profile = line_profiler.LineProfiler()
 
 
 pd.set_option("display.max_columns", None)
@@ -91,14 +91,14 @@ def label_RS_or_PS(list, label):
     return [[*year, label] for year in list]
 
 
-@profile
+# @profile
 def clean_table(soup, label, table_type):
     """Put functions for RS and PS into one"""
     table = scrape_tables(soup, label, table_type)
     if table is None:
         return
     list = scraped_table_to_list(table)
-    column_headers = scrape_column_headers(list) + ["RS/PS"]
+    column_headers = scrape_column_headers(list) + ["RS/PS"] + ["diff_qualifier"]
     list = remove_column_headers(list)
     list = remove_blank_lines(list)
     list = adjustments_for_did_not_play_seasons(list)
@@ -147,26 +147,36 @@ def add_blank_lines(list):
     row = 0
     while row < upper_bound:
         if (
-            (list[row][0] != "")
-            & (list[row + 1][0] != "")
-            & (list[row][-1] != list[row + 1][-1])
+                (list[row][0] != "")
+                & (list[row + 1][0] != "")
+                & (list[row][-1] != list[row + 1][-1])
         ):
-            list = list[: row + 1] + [[""] * len(list[0])] + list[row + 1 :]
+            list = list[: row + 1] + [[""] * len(list[0])] + list[row + 1:]
             upper_bound += 1
         row += 1
     return list
 
 
+def add_qualifier_col_diff(list):
+    """Add qualifier that will determine which rows to take difference from"""
+    return [
+        [*year, ""]
+        for year in list
+    ]
+
+
 def create_dataframe(list, column_headers):
+    """Turns the list into a dataframe"""
     return pd.DataFrame(list, columns=column_headers)
 
 
 def dataframe_data_types(dataframe, table_type):
+    """Creates column headers for dataframe"""
     cols = []
     if (
-        table_type == "per_game"
-        or table_type == "per_minute"
-        or table_type == "per_poss"
+            table_type == "per_game"
+            or table_type == "per_minute"
+            or table_type == "per_poss"
     ):
         possible_columns = [
             "G",
@@ -234,6 +244,28 @@ def dataframe_data_types(dataframe, table_type):
     return dataframe
 
 
+def determine_rows_to_fill(dataframe):
+    """Determine rows with RS (tot) and PS"""
+
+    for row in range(len(dataframe.index)):
+        if dataframe['RS/PS'].iloc[row] == "":
+            dataframe['diff_qualifier'][row] = 'X'
+
+    for row in range(len(dataframe.index)):
+        if(dataframe['diff_qualifier'][row] != 'X' and (row == 0 or dataframe['diff_qualifier'][row-1] == 'X')):
+            dataframe['diff_qualifier'][row] = 'First'
+
+    for row in range(len(dataframe.index)):
+        if(dataframe['diff_qualifier'][row] != 'X' and (dataframe['diff_qualifier'][row+1] == 'X' and dataframe['RS/PS'][row] == "PS")):
+            dataframe['diff_qualifier'][row] = 'Last'
+
+    return dataframe
+
+
+def fill_missing_rows(dataframe):
+    pass
+
+
 def player_single_table_type(player_page, table_type):
     RS = clean_table(player_page, "RS", table_type)
     PS = clean_table(player_page, "PS", table_type)
@@ -246,22 +278,26 @@ def player_single_table_type(player_page, table_type):
     combined = sort_list(combined)
     combined = add_blank_lines(combined)
     combined = remove_sorting_column(combined)
+    combined = add_qualifier_col_diff(combined)
     combined = create_dataframe(combined, column_headers)
     combined = dataframe_data_types(combined, table_type)
+    combined = determine_rows_to_fill(combined)
+
     return combined
 
-@profile
+
+# @profile
 def main(player_ID):
     player_URL = determine_player_URL(player_ID)
     player_page = scrape_player_page(player_URL)
     per_game = player_single_table_type(player_page, "per_game")
-    per_minute = player_single_table_type(player_page, "per_minute")
-    per_poss = player_single_table_type(player_page, "per_poss")
-    advanced = player_single_table_type(player_page, "advanced")
+    # per_minute = player_single_table_type(player_page, "per_minute")
+    # per_poss = player_single_table_type(player_page, "per_poss")
+    # advanced = player_single_table_type(player_page, "advanced")
     return per_game
 
 
 if __name__ == "__main__":
-    player_ID = "mcgratr01"
-    main(player_ID)
-    profile.print_stats()
+    player_ID = "petrodr01"
+    print(main(player_ID))
+    # profile.print_stats()
