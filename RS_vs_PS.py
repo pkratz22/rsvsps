@@ -294,11 +294,18 @@ def player_single_table_type(player_page, table_type):
 def main(player_ID):
     player_URL = determine_player_URL(player_ID)
     player_page = scrape_player_page(player_URL)
+    
     per_game = player_single_table_type(player_page, "per_game")
-    # per_minute = player_single_table_type(player_page, "per_minute")
-    # per_poss = player_single_table_type(player_page, "per_poss")
-    # advanced = player_single_table_type(player_page, "advanced")
-    return per_game
+    per_minute = player_single_table_type(player_page, "per_minute")
+    per_poss = player_single_table_type(player_page, "per_poss")
+    advanced = player_single_table_type(player_page, "advanced")
+
+    per_game.to_excel("per_game.xlsx")
+    per_minute.to_excel("per_minute.xlsx")
+    per_poss.to_excel("per_poss.xlsx")
+    advanced.to_excel("advanced.xlsx")
+
+    return per_minute
 
 
 if __name__ == "__main__":
