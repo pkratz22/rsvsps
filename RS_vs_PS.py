@@ -250,7 +250,23 @@ def determine_rows_to_fill(dataframe):
 
 
 def remove_extra_first_last(dataframe):
-    pass
+    """Get rid of extra firsts/lasts"""
+    first_count = 0
+    last_count = 0
+    for row in range(len(dataframe.index)):
+        if dataframe.loc[row, 'diff_qualifier'] == "First":
+            first_count += 1
+        elif dataframe.loc[row, 'diff_qualifier'] == "Last":
+            last_count += 1
+        elif dataframe.loc[row, 'diff_qualifier'] == "X" and first_count != last_count:
+            first_count = 0
+            last_count = 0
+            dataframe.loc[row, 'diff_qualifier'] = ""
+            temp_row = row - 1
+            while temp_row >= 0 and dataframe.loc[temp_row, 'diff_qualifier'] != "X":
+                dataframe.loc[temp_row, 'diff_qualifier'] = ""
+                temp_row -= 1
+    return dataframe
 
 
 def player_single_table_type(player_page, table_type):
@@ -269,6 +285,7 @@ def player_single_table_type(player_page, table_type):
     combined = create_dataframe(combined, column_headers)
     combined = dataframe_data_types(combined, table_type)
     combined = determine_rows_to_fill(combined)
+    combined = remove_extra_first_last(combined)
 
     return combined
 
