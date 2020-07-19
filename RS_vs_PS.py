@@ -8,9 +8,7 @@ import pandas as pd
 
 # import line_profiler
 
-
 # profile = line_profiler.LineProfiler()
-
 
 pd.set_option("display.max_columns", None)
 pd.set_option("max_rows", None)
@@ -19,8 +17,7 @@ pd.set_option("max_rows", None)
 def determine_player_URL(player_ID):
     """Determine the Player's Page URL from player's ID"""
     return "https://www.basketball-reference.com/players/{last_initial}/{ID}.html".format(
-        last_initial=player_ID[0], ID=player_ID
-    )
+        last_initial=player_ID[0], ID=player_ID)
 
 
 def scrape_player_page(player_URL):
@@ -31,19 +28,19 @@ def scrape_player_page(player_URL):
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
     player_page = page_request.text
-    tables = SoupStrainer(
-        id=[
-            "per_game",
-            "playoffs_per_game",
-            "per_minute",
-            "playoffs_per_minute",
-            "per_poss",
-            "playoffs_per_poss",
-            "advanced",
-            "playoffs_advanced",
-        ]
-    )
-    soup = BeautifulSoup(re.sub("<!--|-->", "", player_page), "lxml", parse_only=tables)
+    tables = SoupStrainer(id=[
+        "per_game",
+        "playoffs_per_game",
+        "per_minute",
+        "playoffs_per_minute",
+        "per_poss",
+        "playoffs_per_poss",
+        "advanced",
+        "playoffs_advanced",
+    ])
+    soup = BeautifulSoup(re.sub("<!--|-->", "", player_page),
+                         "lxml",
+                         parse_only=tables)
     return soup
 
 
@@ -57,10 +54,8 @@ def scrape_tables(soup, label, table_type):
 
 def scraped_table_to_list(table):
     """Convert the scraped table to a multidimensional list"""
-    return [
-        [cell.text for cell in row.find_all(["th", "td"])]
-        for row in table.find_all("tr")
-    ]
+    return [[cell.text for cell in row.find_all(["th", "td"])]
+            for row in table.find_all("tr")]
 
 
 def scrape_column_headers(list):
@@ -81,9 +76,8 @@ def remove_blank_lines(list):
 def adjustments_for_did_not_play_seasons(list):
     """Corrects formatting for seasons with Did Not Play"""
     list_extender = [""] * (len(list[0]) - 3)
-    return [
-        [*year, *list_extender] if "Did Not Play" in year[2] else year for year in list
-    ]
+    return [[*year, *list_extender] if "Did Not Play" in year[2] else year
+            for year in list]
 
 
 def label_RS_or_PS(list, label):
@@ -98,7 +92,8 @@ def clean_table(soup, label, table_type):
     if table is None:
         return
     list = scraped_table_to_list(table)
-    column_headers = scrape_column_headers(list) + ["RSPS"] + ["diff_qualifier"]
+    column_headers = scrape_column_headers(list) + ["RSPS"
+                                                    ] + ["diff_qualifier"]
     list = remove_column_headers(list)
     list = remove_blank_lines(list)
     list = adjustments_for_did_not_play_seasons(list)
@@ -120,14 +115,9 @@ def combine_RS_and_PS(RS, PS):
 
 def add_sorting_qualifier(list):
     """Add an element to each row that can be used to properly sort"""
-    return [
-        [*year, "1" + year[2]]
-        if "season" in year[0]
-        else [*year, "2"]
-        if "Career" in year[0]
-        else [*year, "0" + year[0]]
-        for year in list
-    ]
+    return [[*year, "1" + year[2]] if "season" in year[0] else
+            [*year, "2"] if "Career" in year[0] else [*year, "0" + year[0]]
+            for year in list]
 
 
 def sort_list(list):
@@ -146,12 +136,10 @@ def add_blank_lines(list):
     upper_bound = len(list) - 1
     row = 0
     while row < upper_bound:
-        if (
-                (list[row][0] != "")
+        if ((list[row][0] != "")
                 & (list[row + 1][0] != "")
-                & (list[row][-1] != list[row + 1][-1])
-        ):
-            list = list[: row + 1] + [[""] * len(list[0])] + list[row + 1:]
+                & (list[row][-1] != list[row + 1][-1])):
+            list = list[:row + 1] + [[""] * len(list[0])] + list[row + 1:]
             upper_bound += 1
         row += 1
     return list
@@ -159,10 +147,7 @@ def add_blank_lines(list):
 
 def add_qualifier_col_diff(list):
     """Add qualifier that will determine which rows to take difference from"""
-    return [
-        [*year, ""]
-        for year in list
-    ]
+    return [[*year, ""] for year in list]
 
 
 def create_dataframe(list, column_headers):
@@ -173,11 +158,8 @@ def create_dataframe(list, column_headers):
 def dataframe_data_types(dataframe, table_type):
     """Creates column headers for dataframe"""
     cols = []
-    if (
-            table_type == "per_game"
-            or table_type == "per_minute"
-            or table_type == "per_poss"
-    ):
+    if (table_type == "per_game" or table_type == "per_minute"
+            or table_type == "per_poss"):
         possible_columns = [
             "G",
             "GS",
@@ -240,7 +222,9 @@ def dataframe_data_types(dataframe, table_type):
             if column in dataframe.columns:
                 cols += [column]
 
-    dataframe[cols] = dataframe[cols].apply(pd.to_numeric, errors="coerce", axis=1)
+    dataframe[cols] = dataframe[cols].apply(pd.to_numeric,
+                                            errors="coerce",
+                                            axis=1)
     return dataframe
 
 
@@ -248,28 +232,31 @@ def determine_rows_to_fill(dataframe):
     """Determine rows with RS (tot) and PS"""
 
     for row in range(len(dataframe.index)):
-        if dataframe.loc[row,'RSPS'] == "":
-            dataframe.loc[row,'diff_qualifier'] = 'X'
+        if dataframe.loc[row, 'RSPS'] == "":
+            dataframe.loc[row, 'diff_qualifier'] = 'X'
 
     for row in range(len(dataframe.index)):
-        if(dataframe.loc[row,'diff_qualifier'] != 'X' and (row == 0 or dataframe.loc[row-1,'diff_qualifier'] == 'X')):
-            dataframe.loc[row,'diff_qualifier'] = 'First'
+        if (dataframe.loc[row, 'diff_qualifier'] != 'X' and
+            (row == 0 or dataframe.loc[row - 1, 'diff_qualifier'] == 'X')):
+            dataframe.loc[row, 'diff_qualifier'] = 'First'
 
     for row in range(len(dataframe.index)):
-        if(dataframe.loc[row,'diff_qualifier'] != 'X' and (dataframe.loc[row+1,'diff_qualifier'] == 'X' and dataframe.loc[row,'RSPS'] == "PS")):
-            dataframe.loc[row,'diff_qualifier'] = 'Last'
+        if (dataframe.loc[row, 'diff_qualifier'] != 'X'
+                and (dataframe.loc[row + 1, 'diff_qualifier'] == 'X'
+                     and dataframe.loc[row, 'RSPS'] == "PS")):
+            dataframe.loc[row, 'diff_qualifier'] = 'Last'
 
     return dataframe
 
 
-def fill_missing_rows(dataframe):
+def remove_extra_first_last(dataframe):
     pass
 
 
 def player_single_table_type(player_page, table_type):
     RS = clean_table(player_page, "RS", table_type)
     PS = clean_table(player_page, "PS", table_type)
-    if (RS == None) & (PS == None):
+    if (RS is None) & (PS is None):
         return []
     combined = combine_RS_and_PS(RS, PS)
     column_headers = scrape_column_headers(combined)
@@ -298,6 +285,6 @@ def main(player_ID):
 
 
 if __name__ == "__main__":
-    player_ID = "petrodr01"
+    player_ID = "mcgratr01"
     print(main(player_ID))
     # profile.print_stats()
