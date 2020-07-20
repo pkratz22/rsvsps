@@ -1,4 +1,4 @@
-# imports
+#imports
 from bs4 import BeautifulSoup, SoupStrainer
 import re
 import requests
@@ -258,12 +258,14 @@ def remove_extra_first_last(dataframe):
             first_count += 1
         elif dataframe.loc[row, 'diff_qualifier'] == "Last":
             last_count += 1
-        elif dataframe.loc[row, 'diff_qualifier'] == "X" and first_count != last_count:
+        elif dataframe.loc[
+                row, 'diff_qualifier'] == "X" and first_count != last_count:
             first_count = 0
             last_count = 0
             dataframe.loc[row, 'diff_qualifier'] = ""
             temp_row = row - 1
-            while temp_row >= 0 and dataframe.loc[temp_row, 'diff_qualifier'] != "X":
+            while temp_row >= 0 and dataframe.loc[temp_row,
+                                                  'diff_qualifier'] != "X":
                 dataframe.loc[temp_row, 'diff_qualifier'] = ""
                 temp_row -= 1
     return dataframe
@@ -271,9 +273,15 @@ def remove_extra_first_last(dataframe):
 
 def get_differences(dataframe):
     """Calculate differences between RS and PS"""
-    diff_columns = ["MP","FG","FGA","FG%","3P","3PA","3P%","2P","2PA","2P%","eFG%","FT","FTA","FT%","ORB","DRB","TRB","AST","STL","BLK","TOV","PF","PTS","ORtg","DRtg","PER","TS%","3PAr","FTr","ORB%","DRB%","TRB%","AST%","STL%","BLK%","TOV%","USG%","OWS","DWS","WS","WS/48","OBPM","DBPM","BPM","VORP"]
+    diff_columns = [
+        "MP", "FG", "FGA", "FG%", "3P", "3PA", "3P%", "2P", "2PA", "2P%",
+        "eFG%", "FT", "FTA", "FT%", "ORB", "DRB", "TRB", "AST", "STL", "BLK",
+        "TOV", "PF", "PTS", "ORtg", "DRtg", "PER", "TS%", "3PAr", "FTr",
+        "ORB%", "DRB%", "TRB%", "AST%", "STL%", "BLK%", "TOV%", "USG%", "OWS",
+        "DWS", "WS", "WS/48", "OBPM", "DBPM", "BPM", "VORP"
+    ]
     first = []
-    last = []  
+    last = []
     for row in range(len(dataframe.index)):
 
         if dataframe.loc[row, 'diff_qualifier'] == "First":
