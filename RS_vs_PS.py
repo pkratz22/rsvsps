@@ -269,6 +269,35 @@ def remove_extra_first_last(dataframe):
     return dataframe
 
 
+def get_differences(dataframe):
+    """Calculate differences between RS and PS"""
+    diff_columns = ["MP","FG","FGA","FG%","3P","3PA","3P%","2P","2PA","2P%","eFG%","FT","FTA","FT%","ORB","DRB","TRB","AST","STL","BLK","TOV","PF","PTS","ORtg","DRtg","PER","TS%","3PAr","FTr","ORB%","DRB%","TRB%","AST%","STL%","BLK%","TOV%","USG%","OWS","DWS","WS","WS/48","OBPM","DBPM","BPM","VORP"]
+    first = []
+    last = []  
+    for row in range(len(dataframe.index)):
+
+        if dataframe.loc[row, 'diff_qualifier'] == "First":
+            for col in diff_columns:
+                if col in dataframe:
+                    first.append(dataframe.loc[row, col])
+
+        elif dataframe.loc[row, 'diff_qualifier'] == "Last":
+            for col in diff_columns:
+                if col in dataframe:
+                    last.append(dataframe.loc[row, col])
+
+        elif dataframe.loc[row, 'diff_qualifier'] == "X":
+            counter = 0
+            for col in diff_columns:
+                if col in dataframe:
+                    dataframe.loc[row, col] = first[counter] - last[counter]
+                    counter += 1
+            first = []
+            last = []
+
+    return dataframe
+
+
 def player_single_table_type(player_page, table_type):
     RS = clean_table(player_page, "RS", table_type)
     PS = clean_table(player_page, "PS", table_type)
@@ -286,6 +315,7 @@ def player_single_table_type(player_page, table_type):
     combined = dataframe_data_types(combined, table_type)
     combined = determine_rows_to_fill(combined)
     combined = remove_extra_first_last(combined)
+    combined = get_differences(combined)
 
     return combined
 
@@ -294,7 +324,7 @@ def player_single_table_type(player_page, table_type):
 def main(player_ID):
     player_URL = determine_player_URL(player_ID)
     player_page = scrape_player_page(player_URL)
-    
+
     per_game = player_single_table_type(player_page, "per_game")
     per_minute = player_single_table_type(player_page, "per_minute")
     per_poss = player_single_table_type(player_page, "per_poss")
@@ -305,7 +335,10 @@ def main(player_ID):
     per_poss.to_excel("per_poss.xlsx")
     advanced.to_excel("advanced.xlsx")
 
+    #return per_game
     return per_minute
+    #return per_poss
+    #return advanced
 
 
 if __name__ == "__main__":
