@@ -1,4 +1,4 @@
+Add case if player ID does not exist
 Allow user to enter playerID
 Use red-green scale to show whether player gets better or worse in PS
-Add case if player ID does not exist
 Clean up code once it works
