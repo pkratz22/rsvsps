@@ -298,7 +298,7 @@ def get_differences(dataframe):
             counter = 0
             for col in diff_columns:
                 if col in dataframe:
-                    dataframe.loc[row, col] = first[counter] - last[counter]
+                    dataframe.loc[row, col] =  last[counter] - first[counter]
                     counter += 1
             first = []
             last = []
