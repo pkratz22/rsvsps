@@ -233,16 +233,16 @@ def determine_rows_to_fill(dataframe):
 
     for row in range(len(dataframe.index)):
         if dataframe.loc[row, 'RSPS'] == "":
-            dataframe.loc[row, 'diff_qualifier'] = 'X'
+            dataframe.loc[row, 'diff_qualifier'] = 'Diff'
 
     for row in range(len(dataframe.index)):
-        if (dataframe.loc[row, 'diff_qualifier'] != 'X' and
-            (row == 0 or dataframe.loc[row - 1, 'diff_qualifier'] == 'X')):
+        if (dataframe.loc[row, 'diff_qualifier'] != 'Diff' and
+            (row == 0 or dataframe.loc[row - 1, 'diff_qualifier'] == 'Diff')):
             dataframe.loc[row, 'diff_qualifier'] = 'First'
 
     for row in range(len(dataframe.index)):
-        if (dataframe.loc[row, 'diff_qualifier'] != 'X'
-                and (dataframe.loc[row + 1, 'diff_qualifier'] == 'X'
+        if (dataframe.loc[row, 'diff_qualifier'] != 'Diff'
+                and (dataframe.loc[row + 1, 'diff_qualifier'] == 'Diff'
                      and dataframe.loc[row, 'RSPS'] == "PS")):
             dataframe.loc[row, 'diff_qualifier'] = 'Last'
 
@@ -259,13 +259,13 @@ def remove_extra_first_last(dataframe):
         elif dataframe.loc[row, 'diff_qualifier'] == "Last":
             last_count += 1
         elif dataframe.loc[
-                row, 'diff_qualifier'] == "X" and first_count != last_count:
+                row, 'diff_qualifier'] == "Diff" and first_count != last_count:
             first_count = 0
             last_count = 0
             dataframe.loc[row, 'diff_qualifier'] = ""
             temp_row = row - 1
             while temp_row >= 0 and dataframe.loc[temp_row,
-                                                  'diff_qualifier'] != "X":
+                                                  'diff_qualifier'] != "Diff":
                 dataframe.loc[temp_row, 'diff_qualifier'] = ""
                 temp_row -= 1
     return dataframe
@@ -294,7 +294,7 @@ def get_differences(dataframe):
                 if col in dataframe:
                     last.append(dataframe.loc[row, col])
 
-        elif dataframe.loc[row, 'diff_qualifier'] == "X":
+        elif dataframe.loc[row, 'diff_qualifier'] == "Diff":
             counter = 0
             for col in diff_columns:
                 if col in dataframe:
@@ -338,18 +338,19 @@ def main(player_ID):
     per_poss = player_single_table_type(player_page, "per_poss")
     advanced = player_single_table_type(player_page, "advanced")
 
-    per_game.to_excel("per_game.xlsx")
-    per_minute.to_excel("per_minute.xlsx")
-    per_poss.to_excel("per_poss.xlsx")
-    advanced.to_excel("advanced.xlsx")
+    writer = pd.ExcelWriter('{player}.xlsx'.format(player = player_ID), engine = 'xlsxwriter')
 
-    #return per_game
-    return per_minute
-    #return per_poss
-    #return advanced
+    per_game.to_excel(writer, sheet_name = "per_game")
+    per_minute.to_excel(writer, sheet_name = "per_minute")
+    per_poss.to_excel(writer, sheet_name = "per_poss")
+    advanced.to_excel(writer, sheet_name = "advanced")
+
+    writer.save()
+
+    return writer
 
 
 if __name__ == "__main__":
-    player_ID = "mcgratr01"
-    print(main(player_ID))
+    player_ID = input("Enter playerID: ")
+    main(player_ID)
     # profile.print_stats()
