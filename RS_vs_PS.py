@@ -306,6 +306,11 @@ def get_differences(dataframe):
     return dataframe
 
 
+def remove_diff_qualifier_column(dataframe):
+    """Remove diff_qualifier column"""
+    return dataframe.iloc[:, :-1]
+
+
 def player_single_table_type(player_page, table_type):
     RS = clean_table(player_page, "RS", table_type)
     PS = clean_table(player_page, "PS", table_type)
@@ -324,6 +329,7 @@ def player_single_table_type(player_page, table_type):
     combined = determine_rows_to_fill(combined)
     combined = remove_extra_first_last(combined)
     combined = get_differences(combined)
+    combined = remove_diff_qualifier_column(combined)
 
     return combined
 
