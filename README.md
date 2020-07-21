@@ -1,6 +1,6 @@
-# rsvsps
+# Regular Season vs Post-Season (RSVSPS)
 
-## purpose
+## Purpose
 
 I have often heard people discuss that certain players are chokers in the playoffs, but to compare their regular season and post season numbers on basketball-reference is a bit tedious, especially when looking at multiple years
 
