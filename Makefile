@@ -1,4 +1,4 @@
-virtual: .venv/bin/pip # Creates an isolated python 3 environment
+virtual: .venv/bin/pi
 
 .venv/bin/pip:
 	virtualenv -p /usr/bin/python3 .venv
