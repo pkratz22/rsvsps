@@ -307,7 +307,7 @@ def player_single_table_type(player_page, table_type):
     RS = clean_table(player_page, "RS", table_type)
     PS = clean_table(player_page, "PS", table_type)
     if (RS is None) & (PS is None):
-        return []
+        return pd.DataFrame()
     combined = combine_RS_and_PS(RS, PS)
     column_headers = scrape_column_headers(combined)
     combined = remove_column_headers(combined)
