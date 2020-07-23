@@ -1,4 +1,3 @@
-import csv
 import unittest
 from .context import RS_vs_PS
 
