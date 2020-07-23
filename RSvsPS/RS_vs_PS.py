@@ -9,6 +9,8 @@ import pandas as pd
 
 def determine_player_URL(player_ID):
     """Determine the Player's Page URL from player's ID"""
+    if player_ID == "":
+        raise IndexError
     return "https://www.basketball-reference.com/players/{last_initial}/{ID}.html".format(
         last_initial=player_ID[0], ID=player_ID)
 
