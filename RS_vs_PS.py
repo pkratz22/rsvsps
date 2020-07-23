@@ -6,13 +6,6 @@ import operator
 import sys
 import pandas as pd
 
-# import line_profiler
-
-# profile = line_profiler.LineProfiler()
-
-pd.set_option("display.max_columns", None)
-pd.set_option("max_rows", None)
-
 
 def determine_player_URL(player_ID):
     """Determine the Player's Page URL from player's ID"""
@@ -85,7 +78,6 @@ def label_RS_or_PS(list, label):
     return [[*year, label] for year in list]
 
 
-# @profile
 def clean_table(soup, label, table_type):
     """Put functions for RS and PS into one"""
     table = scrape_tables(soup, label, table_type)
@@ -334,7 +326,6 @@ def player_single_table_type(player_page, table_type):
     return combined
 
 
-# @profile
 def main(player_ID):
     player_URL = determine_player_URL(player_ID)
     player_page = scrape_player_page(player_URL)
@@ -359,4 +350,3 @@ def main(player_ID):
 if __name__ == "__main__":
     player_ID = input("Enter playerID: ")
     main(player_ID)
-    # profile.print_stats()
