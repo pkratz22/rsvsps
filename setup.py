@@ -8,7 +8,7 @@ with open('LICENSE') as f:
 
 setup(
     name='RS_vs_PS',
-    version='1.0',
+    version='0.1',
     description='Compare NBA player Regular Season vs Post-Season performance',
     long_description=readme,
     author='Peter Kratz',
