@@ -1,46 +1,71 @@
+"""Test overall script for players
+
+Classes:
+    TestRsvsps
+Functions:
+    test_normal(self)
+    test_multiple_team_one_season(self)
+    test_has_season_with_PS_no_RS(self)
+    test_never_made_playoffs(self)
+    test_multiple_seasons_overseas(self)
+    test_played_in_ABA(self)
+    test_less_stats_during_era(self)
+    test_stats_available_only_late_career(self)
+    test_three_point_line_added_mid_career(self)
+"""
+
 import unittest
-from .context import RS_vs_PS
+from .context import rsvsps
 
 
-class test_RS_vs_PS(unittest.TestCase):
+class TestRsvsps(unittest.TestCase):
     """General test cases for entire process"""
     def test_normal(self):     
+        """Test players with normal careers"""
         # normal test
-        self.assertIsNotNone(RS_vs_PS.main('jamesle01'))
-        self.assertIsNotNone(RS_vs_PS.main('abdulka01'))
-    
+        self.assertIsNotNone(rsvsps.main('jamesle01'))
+        self.assertIsNotNone(rsvsps.main('abdulka01'))
+
     def test_multiple_team_one_season(self):
+        """Test players who switched teams mid-season"""
         # Player that played on multiple teams in one season
-        self.assertIsNotNone(RS_vs_PS.main('petrodr01'))
+        self.assertIsNotNone(rsvsps.main('petrodr01'))
 
     def test_has_season_with_PS_no_RS(self):
+        """Test players who had PS but no RS for a season"""
         # played in the post-season but not regular season for one season
-        self.assertIsNotNone(RS_vs_PS.main('mcgratr01'))
+        self.assertIsNotNone(rsvsps.main('mcgratr01'))
 
     def test_never_made_playoffs(self):
+        """Test players who never made playoffs"""
         # player that has not reached the playoffs
-        self.assertIsNotNone(RS_vs_PS.main('grahade01'))
+        self.assertIsNotNone(rsvsps.main('grahade01'))
 
     def test_multiple_seasons_overseas(self):
+        """Test players who had multiple seasons overseas"""
         # multiple seasons not in league
-        self.assertIsNotNone(RS_vs_PS.main('tuckepj01'))
+        self.assertIsNotNone(rsvsps.main('tuckepj01'))
 
-    def test_played_in_ABA(self):
+    def test_played_in_aba(self):
+        """Test players who played in the ABA"""
         # played in the ABA
-        self.assertIsNotNone(RS_vs_PS.main('ervinju01'))
+        self.assertIsNotNone(rsvsps.main('ervinju01'))
 
     def test_less_stats_during_era(self):
+        """Test players who had less stats during era"""
         # retired then returned + less stats available during era
-        self.assertIsNotNone(RS_vs_PS.main('cousybo01'))
+        self.assertIsNotNone(rsvsps.main('cousybo01'))
 
     def test_stats_available_only_late_career(self):
+        """Test players who had more stats late career"""
         # certain stats available during only part of career
-        self.assertIsNotNone(RS_vs_PS.main('ellisjo01'))
+        self.assertIsNotNone(rsvsps.main('ellisjo01'))
 
     def test_three_point_line_added_mid_career(self):
+        """Test players with three point line late career"""
         # 3 point line added mid career
-        self.assertIsNotNone(RS_vs_PS.main('furlote01'))
+        self.assertIsNotNone(rsvsps.main('furlote01'))
 
-    
+
 if __name__ == "__main__":
     unittest.main()

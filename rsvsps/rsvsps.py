@@ -1,24 +1,53 @@
-#imports
-from bs4 import BeautifulSoup, SoupStrainer
+"""Create excel sheet comparing players Regular Seasons and Post-Seasons
+
+Functions:
+
+    determine_player_url(player_ID)
+    scrape_player_page(player_URL)
+    scrape_tables(soup, label, table_type)
+    scraped_table_to_list(table)
+    scrape_column_headers(list)
+    remove_column_headers(list)
+    remove_blank_lines(list)
+    adjustments_for_did_not_play_seasons(list)
+    label_rs_or_ps(list, label)
+    clean_table(soup, label, table_type)
+    combine_RS_and_PS(RS, PS)
+    add_sorting_qualifier(list)
+    sort_list(list)
+    remove_sorting_column(list)
+    add_blank_lines(list)
+    add_qualifier_col_diff(list)
+    create_dataframe(list, column_headers)
+    dataframe_data_types(dataframe, table_type)
+    determine_rows_to_fill(dataframe)
+    remove_extra_first_last(dataframe)
+    get_differences(dataframe)
+    remove_diff_qualifier_column(dataframe)
+    player_single_table_type(player_page, table_type)
+"""
+
+# imports
 import re
+
+from bs4 import BeautifulSoup, SoupStrainer
+
 import requests
-import operator
-import sys
 import pandas as pd
 
 
-def determine_player_URL(player_ID):
+def determine_player_url(player_id):
     """Determine the Player's Page URL from player's ID"""
-    if player_ID == "":
+    if player_id == "":
         raise SystemExit(IndexError)
     return "https://www.basketball-reference.com/players/{last_initial}/{ID}.html".format(
-        last_initial=player_ID[0], ID=player_ID)
+        last_initial=player_id[0], ID=player_id)
 
 
-def scrape_player_page(player_URL):
+def scrape_player_page(player_url):
     """Scrape Player Page for tables"""
     try:
-        page_request = requests.get(player_URL)
+        page_request = requests.get(player_url)
         page_request.raise_for_status()
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
@@ -53,31 +82,31 @@ def scraped_table_to_list(table):
             for row in table.find_all("tr")]
 
 
-def scrape_column_headers(list):
+def scrape_column_headers(player_data_list):
     """Store column headers"""
-    return list[0]
+    return player_data_list[0]
 
 
-def remove_column_headers(list):
+def remove_column_headers(player_data_list):
     """Remove column headers"""
-    return list[1:]
+    return player_data_list[1:]
 
 
-def remove_blank_lines(list):
+def remove_blank_lines(player_data_list):
     """Remove blank lines"""
-    return [year for year in list if year[0] != ""]
+    return [year for year in player_data_list if year[0] != ""]
 
 
-def adjustments_for_did_not_play_seasons(list):
+def adjustments_for_did_not_play_seasons(player_data_list):
     """Corrects formatting for seasons with Did Not Play"""
-    list_extender = [""] * (len(list[0]) - 3)
+    list_extender = [""] * (len(player_data_list[0]) - 3)
     return [[*year, *list_extender] if "Did Not Play" in year[2] else year
-            for year in list]
+            for year in player_data_list]
 
 
-def label_RS_or_PS(list, label):
+def label_rs_or_ps(player_data_list, label):
     """Adds label of either RS or PS"""
-    return [[*year, label] for year in list]
+    return [[*year, label] for year in player_data_list]
 
 
 def clean_table(soup, label, table_type):
@@ -85,16 +114,16 @@ def clean_table(soup, label, table_type):
     table = scrape_tables(soup, label, table_type)
     if table is None:
         return
-    list = scraped_table_to_list(table)
-    column_headers = scrape_column_headers(list) + ["RSPS"
-                                                    ] + ["diff_qualifier"]
-    list = remove_column_headers(list)
-    list = remove_blank_lines(list)
-    list = adjustments_for_did_not_play_seasons(list)
-    list = label_RS_or_PS(list, label)
+    player_data_list = scraped_table_to_list(table)
+    column_headers = scrape_column_headers(
+        player_data_list) + ["RSPS"] + ["diff_qualifier"]
+    player_data_list = remove_column_headers(player_data_list)
+    player_data_list = remove_blank_lines(player_data_list)
+    player_data_list = adjustments_for_did_not_play_seasons(player_data_list)
+    player_data_list = label_rs_or_ps(player_data_list, label)
     if label == "RS":
-        list = [column_headers] + list
-    return list
+        player_data_list = [column_headers] + player_data_list
+    return player_data_list
 
 
 def combine_RS_and_PS(RS, PS):
@@ -107,46 +136,47 @@ def combine_RS_and_PS(RS, PS):
     return total
 
 
-def add_sorting_qualifier(list):
+def add_sorting_qualifier(player_data_list):
     """Add an element to each row that can be used to properly sort"""
     return [[*year, "1" + year[2]] if "season" in year[0] else
             [*year, "2"] if "Career" in year[0] else [*year, "0" + year[0]]
-            for year in list]
+            for year in player_data_list]
 
 
-def sort_list(list):
+def sort_list(player_data_list):
     """Sort list based on qualifer"""
-    return sorted(list, key=lambda x: x[-1])
+    return sorted(player_data_list, key=lambda x: x[-1])
 
 
-def remove_sorting_column(list):
+def remove_sorting_column(player_data_list):
     """Remove sorting qualifier column"""
-    return [entry[:-1] for entry in list]
+    return [entry[:-1] for entry in player_data_list]
 
 
-def add_blank_lines(list):
+def add_blank_lines(player_data_list):
     """Add blank lines that will store differences"""
-    list = list + [[""] * len(list[0])]
-    upper_bound = len(list) - 1
+    player_data_list = player_data_list + [[""] * len(player_data_list[0])]
+    upper_bound = len(player_data_list) - 1
     row = 0
     while row < upper_bound:
-        if ((list[row][0] != "")
-                & (list[row + 1][0] != "")
-                & (list[row][-1] != list[row + 1][-1])):
-            list = list[:row + 1] + [[""] * len(list[0])] + list[row + 1:]
+        if ((player_data_list[row][0] != "")
+                & (player_data_list[row + 1][0] != "")
+                & (player_data_list[row][-1] != player_data_list[row + 1][-1])):
+            player_data_list = player_data_list[:row + 1] + [[""] * \
+                len(player_data_list[0])] + player_data_list[row + 1:]
             upper_bound += 1
         row += 1
-    return list
+    return player_data_list
 
 
-def add_qualifier_col_diff(list):
+def add_qualifier_col_diff(player_data_list):
     """Add qualifier that will determine which rows to take difference from"""
-    return [[*year, ""] for year in list]
+    return [[*year, ""] for year in player_data_list]
 
 
-def create_dataframe(list, column_headers):
+def create_dataframe(player_data_list, column_headers):
     """Turns the list into a dataframe"""
-    return pd.DataFrame(list, columns=column_headers)
+    return pd.DataFrame(player_data_list, columns=column_headers)
 
 
 def dataframe_data_types(dataframe, table_type):
@@ -230,8 +260,8 @@ def determine_rows_to_fill(dataframe):
             dataframe.loc[row, "diff_qualifier"] = "Diff"
 
     for row in range(len(dataframe.index)):
-        if (dataframe.loc[row, "diff_qualifier"] != "Diff" and
-            (row == 0 or dataframe.loc[row - 1, "diff_qualifier"] == "Diff")):
+        if (dataframe.loc[row, "diff_qualifier"] != "Diff" and (
+                row == 0 or dataframe.loc[row - 1, "diff_qualifier"] == "Diff")):
             dataframe.loc[row, "diff_qualifier"] = "First"
 
     for row in range(len(dataframe.index)):
@@ -292,7 +322,7 @@ def get_differences(dataframe):
             counter = 0
             for col in diff_columns:
                 if col in dataframe:
-                    dataframe.loc[row, col] =  last[counter] - first[counter]
+                    dataframe.loc[row, col] = last[counter] - first[counter]
                     counter += 1
             first = []
             last = []
@@ -328,21 +358,24 @@ def player_single_table_type(player_page, table_type):
     return combined
 
 
-def main(player_ID):
-    player_URL = determine_player_URL(player_ID)
-    player_page = scrape_player_page(player_URL)
+def main(player_id):
+    player_url = determine_player_url(player_id)
+    player_page = scrape_player_page(player_url)
 
     per_game = player_single_table_type(player_page, "per_game")
     per_minute = player_single_table_type(player_page, "per_minute")
     per_poss = player_single_table_type(player_page, "per_poss")
     advanced = player_single_table_type(player_page, "advanced")
 
-    writer = pd.ExcelWriter("{player}.xlsx".format(player = player_ID), engine = "xlsxwriter")
+    writer = pd.ExcelWriter(
+        "{player}.xlsx".format(
+            player=player_id),
+        engine="xlsxwriter")
 
-    per_game.to_excel(writer, sheet_name = "per_game")
-    per_minute.to_excel(writer, sheet_name = "per_minute")
-    per_poss.to_excel(writer, sheet_name = "per_poss")
-    advanced.to_excel(writer, sheet_name = "advanced")
+    per_game.to_excel(writer, sheet_name="per_game")
+    per_minute.to_excel(writer, sheet_name="per_minute")
+    per_poss.to_excel(writer, sheet_name="per_poss")
+    advanced.to_excel(writer, sheet_name="advanced")
 
     writer.save()
 

@@ -1,4 +1,6 @@
+"""Imports rsvsps for tests"""
+
 import sys
 sys.path.append('../')
 
-from RSvsPS import RS_vs_PS
+from rsvsps import rsvsps
