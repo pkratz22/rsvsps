@@ -12,7 +12,7 @@ Functions:
     adjustments_for_did_not_play_seasons(list)
     label_rs_or_ps(list, label)
     clean_table(soup, label, table_type)
-    combine_RS_and_PS(RS, PS)
+    combine_rs_and_ps(RS, PS)
     add_sorting_qualifier(list)
     sort_list(list)
     remove_sorting_column(list)
@@ -113,7 +113,7 @@ def clean_table(soup, label, table_type):
     """Put functions for RS and PS into one"""
     table = scrape_tables(soup, label, table_type)
     if table is None:
-        return
+        return None
     player_data_list = scraped_table_to_list(table)
     column_headers = scrape_column_headers(
         player_data_list) + ["RSPS"] + ["diff_qualifier"]
@@ -126,13 +126,13 @@ def clean_table(soup, label, table_type):
     return player_data_list
 
 
-def combine_RS_and_PS(RS, PS):
+def combine_rs_and_ps(regular_season, post_season):
     """Combine Regular Season and Post-Season Data into one table"""
     total = []
-    if RS is not None:
-        total += RS
-    if PS is not None:
-        total += PS
+    if regular_season is not None:
+        total += regular_season
+    if post_season is not None:
+        total += post_season
     return total
 
 
@@ -340,7 +340,7 @@ def player_single_table_type(player_page, table_type):
     PS = clean_table(player_page, "PS", table_type)
     if (RS is None) & (PS is None):
         return pd.DataFrame()
-    combined = combine_RS_and_PS(RS, PS)
+    combined = combine_rs_and_ps(RS, PS)
     column_headers = scrape_column_headers(combined)
     combined = remove_column_headers(combined)
     combined = add_sorting_qualifier(combined)
