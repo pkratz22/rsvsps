@@ -1,31 +1,4 @@
-"""Create excel sheet comparing players Regular Seasons and Post-Seasons
-
-Functions:
-
-    determine_player_url(player_ID)
-    scrape_player_page(player_URL)
-    scrape_tables(soup, label, table_type)
-    scraped_table_to_list(table)
-    scrape_column_headers(list)
-    remove_column_headers(list)
-    remove_blank_lines(list)
-    adjustments_for_did_not_play_seasons(list)
-    label_rs_or_ps(list, label)
-    clean_table(soup, label, table_type)
-    combine_rs_and_ps(RS, PS)
-    add_sorting_qualifier(list)
-    sort_list(list)
-    remove_sorting_column(list)
-    add_blank_lines(list)
-    add_qualifier_col_diff(list)
-    create_dataframe(list, column_headers)
-    dataframe_data_types(dataframe, table_type)
-    determine_rows_to_fill(dataframe)
-    remove_extra_first_last(dataframe)
-    get_differences(dataframe)
-    remove_diff_qualifier_column(dataframe)
-    player_single_table_type(player_page, table_type)
-"""
+"""Create excel sheet comparing players Regular Seasons and Post-Seasons"""
 
 # imports
 import re

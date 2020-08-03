@@ -1,18 +1,4 @@
-"""Test overall script for players
-
-Classes:
-    TestRsvsps
-Functions:
-    test_normal(self)
-    test_multiple_team_one_season(self)
-    test_has_season_with_PS_no_RS(self)
-    test_never_made_playoffs(self)
-    test_multiple_seasons_overseas(self)
-    test_played_in_ABA(self)
-    test_less_stats_during_era(self)
-    test_stats_available_only_late_career(self)
-    test_three_point_line_added_mid_career(self)
-"""
+"""Test overall script for players"""
 
 import unittest
 from .context import rsvsps
