@@ -17,7 +17,7 @@ class TestRsvsps(unittest.TestCase):
         # Player that played on multiple teams in one season
         self.assertIsNotNone(rsvsps.main('petrodr01'))
 
-    def test_has_season_with_PS_no_RS(self):
+    def test_has_season_with_ps_no_rs(self):
         """Test players who had PS but no RS for a season"""
         # played in the post-season but not regular season for one season
         self.assertIsNotNone(rsvsps.main('mcgratr01'))
