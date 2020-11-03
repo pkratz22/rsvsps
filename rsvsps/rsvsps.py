@@ -129,7 +129,8 @@ def remove_sorting_column(player_data_list):
 
 def add_blank_lines(player_data_list):
     """Add blank lines that will store differences"""
-    player_data_list = player_data_list + [[""] * max([len(player_data) for player_data in player_data_list])]
+    length_appended = max([len(row) for row in player_data_list])
+    player_data_list = player_data_list + [[""] * length_appended]
     upper_bound = len(player_data_list) - 1
     row = 0
     while row < upper_bound:
@@ -137,7 +138,7 @@ def add_blank_lines(player_data_list):
                 & (player_data_list[row + 1][0] != "")
                 & (player_data_list[row][-1] != player_data_list[row + 1][-1])):
             player_data_list = player_data_list[:row + 1] + [
-                [""] * len(player_data_list[0])] + player_data_list[row + 1:]
+                [""] * length_appended] + player_data_list[row + 1:]
             upper_bound += 1
         row += 1
     return player_data_list
