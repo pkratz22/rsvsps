@@ -13,7 +13,8 @@ def determine_player_url(player_id):
     """Determine the Player's Page URL from player's ID"""
     if player_id == "":
         raise SystemExit(IndexError)
-    return "https://www.basketball-reference.com/players/{last_initial}/{ID}.html".format(
+    base_url = "https://www.basketball-reference.com/players/"
+    return base_url + "{last_initial}/{ID}.html".format(
         last_initial=player_id[0], ID=player_id)
 
 
@@ -23,7 +24,7 @@ def scrape_player_page(player_url):
         page_request = requests.get(player_url)
         page_request.raise_for_status()
     except requests.exceptions.HTTPError as err:
-        raise SystemExit(err)
+        raise SystemExit from err
     player_page = page_request.text
     tables = SoupStrainer(id=[
         "per_game",
@@ -135,8 +136,8 @@ def add_blank_lines(player_data_list):
         if ((player_data_list[row][0] != "")
                 & (player_data_list[row + 1][0] != "")
                 & (player_data_list[row][-1] != player_data_list[row + 1][-1])):
-            player_data_list = player_data_list[:row + 1] + [[""] * \
-                len(player_data_list[0])] + player_data_list[row + 1:]
+            player_data_list = player_data_list[:row + 1] + [
+                [""] * len(player_data_list[0])] + player_data_list[row + 1:]
             upper_bound += 1
         row += 1
     return player_data_list
@@ -309,11 +310,12 @@ def remove_diff_qualifier_column(dataframe):
 
 
 def player_single_table_type(player_page, table_type):
-    RS = clean_table(player_page, "RS", table_type)
-    PS = clean_table(player_page, "PS", table_type)
-    if (RS is None) & (PS is None):
+    """get specific single table for player"""
+    regular_season = clean_table(player_page, "RS", table_type)
+    post_season = clean_table(player_page, "PS", table_type)
+    if (regular_season is None) & (post_season is None):
         return pd.DataFrame()
-    combined = combine_rs_and_ps(RS, PS)
+    combined = combine_rs_and_ps(regular_season, post_season)
     column_headers = scrape_column_headers(combined)
     combined = remove_column_headers(combined)
     combined = add_sorting_qualifier(combined)
@@ -332,6 +334,7 @@ def player_single_table_type(player_page, table_type):
 
 
 def main(player_id):
+    """Main function, gets player info from id"""
     player_url = determine_player_url(player_id)
     player_page = scrape_player_page(player_url)
 
