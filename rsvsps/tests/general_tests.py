@@ -1,7 +1,7 @@
 """Test overall script for players"""
 
 import unittest
-from .context import rsvsps
+from .. import rsvsps
 
 
 class TestRsvsps(unittest.TestCase):

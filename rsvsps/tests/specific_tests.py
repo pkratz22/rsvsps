@@ -1,4 +1,4 @@
-from .context import rsvsps
+from .. import rsvsps
 
 import requests
 
