@@ -1,8 +1,7 @@
 """Test rsvsps file"""
 
 import unittest
-
-from .. import rsvsps
+from rsvsps import rsvsps
 
 
 class TestRSvsPS(unittest.TestCase):
