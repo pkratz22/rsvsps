@@ -6,7 +6,8 @@ from .. import rsvsps
 
 class TestRsvsps(unittest.TestCase):
     """General test cases for entire process"""
-    def test_normal(self):     
+
+    def test_normal(self):
         """Test players with normal careers"""
         # normal test
         self.assertIsNotNone(rsvsps.main('jamesle01'))

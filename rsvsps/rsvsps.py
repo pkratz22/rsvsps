@@ -344,7 +344,7 @@ def main(player_id):
     per_poss = player_single_table_type(player_page, "per_poss")
     advanced = player_single_table_type(player_page, "advanced")
 
-    writer = pd.ExcelWriter(
+    writer = pd.ExcelWriter(  # pylint: disable=abstract-class-instantiated
         "{player}.xlsx".format(
             player=player_id),
         engine="xlsxwriter")
