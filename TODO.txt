@@ -1,5 +1,0 @@
-Create adequate test cases for project
-
-Look into giving users options for how to download data
-
-Give visualization before asking users how they want data

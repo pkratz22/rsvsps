@@ -1,6 +1,6 @@
-"""Create excel sheet comparing players Regular Seasons and Post-Seasons"""
+"""Create excel sheet comparing players Regular Seasons and Post-Seasons."""
 
-# imports
+import argparse
 import re
 
 from bs4 import BeautifulSoup, SoupStrainer
@@ -335,30 +335,41 @@ def player_single_table_type(player_page, table_type):
 
 
 def main(player_id):
-    """Main function, gets player info from id"""
+    """Get player rsvsps data from player ID.
+
+    Args:
+        player_id: string that is player ID.
+
+    Returns:
+        An excel file with player data.
+    """
     player_url = determine_player_url(player_id)
     player_page = scrape_player_page(player_url)
 
-    per_game = player_single_table_type(player_page, "per_game")
-    per_minute = player_single_table_type(player_page, "per_minute")
-    per_poss = player_single_table_type(player_page, "per_poss")
-    advanced = player_single_table_type(player_page, "advanced")
+    per_game = player_single_table_type(player_page, 'per_game')
+    per_minute = player_single_table_type(player_page, 'per_minute')
+    per_poss = player_single_table_type(player_page, 'per_poss')
+    advanced = player_single_table_type(player_page, 'advanced')
 
-    writer = pd.ExcelWriter(  # pylint: disable=abstract-class-instantiated
-        "{player}.xlsx".format(
-            player=player_id),
-        engine="xlsxwriter")
+    writer = pd.ExcelWriter(
+        'output/{player}.xlsx'.format(
+            player=player_id,
+        ),
+        engine='xlsxwriter',
+    )
 
-    per_game.to_excel(writer, sheet_name="per_game")
-    per_minute.to_excel(writer, sheet_name="per_minute")
-    per_poss.to_excel(writer, sheet_name="per_poss")
-    advanced.to_excel(writer, sheet_name="advanced")
+    per_game.to_excel(writer, sheet_name='per_game')
+    per_minute.to_excel(writer, sheet_name='per_minute')
+    per_poss.to_excel(writer, sheet_name='per_poss')
+    advanced.to_excel(writer, sheet_name='advanced')
 
     writer.save()
 
     return writer
 
 
-if __name__ == "__main__":
-    player_ID = input("Enter playerID: ")
-    main(player_ID)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--player', type=str)
+    args = parser.parse_args()
+    main(args.player)
