@@ -36,22 +36,7 @@ def scrape_player_page(player_url):
         "advanced",
         "playoffs_advanced",
     ])
-    table_ids = {
-        "per_game", 
-        "playoffs_per_game", 
-        "per_minute", 
-        "playoffs_per_minute", 
-        "per_poss",
-        "playoffs_per_poss",
-        "advanced",
-        "playoffs_advanced",
-    }
-    
-    soup = BeautifulSoup(
-        player_page.replace("<!--", "").replace("-->", ""),
-        "lxml",
-        parse_only=tables,
-    )
+    player_page = player_page.replace("<!--", "").replace("-->", "")
 
     soup = BeautifulSoup(player_page, "lxml", parse_only=tables)
     return soup
@@ -348,7 +333,7 @@ def player_single_table_type(player_page, table_type):
 
     return combined
 
-# @profile
+
 def main(player_id):
     """Get player rsvsps data from player ID.
 
@@ -384,9 +369,8 @@ def main(player_id):
 
 
 if __name__ == '__main__':
-    #parser = argparse.ArgumentParser()
-    #parser.add_argument('--player', type=str)
-    #args = parser.parse_args()
-    #main(args.player)
-    player = 'cousybo01'
-    main(player)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--player', type=str)
+    args = parser.parse_args()
+    main(args.player)
+    
