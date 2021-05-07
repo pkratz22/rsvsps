@@ -9,3 +9,9 @@ This python file will accept a user ID from basketball-reference (Drazen Petrovi
 I made it so that it works one player at a time, as I know basketball-reference does not want excessive scraping because if too many people do it, it could take a toll on their servers. If you wish to extend upon this to do so, that is up to you but I do not support that. 
 
 In the future I may add some visualization (color scales, or anything else) rather than just exporting as an excel sheet, but I thought the excel sheet would give people greater flexibility when looking at the data
+
+## TODO
+
+Speed up the scraping method and re-structure:
+Currently parses player page, uncomments all tables, and then goes through reading the tables.
+Instead, read all tables, including the ones in comments, without uncommenting. Then return the tables and perform functions on them.
