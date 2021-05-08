@@ -411,7 +411,7 @@ def remove_extra_first_last(dataframe):
                 temp_row -= 1
     return dataframe
 
-#@profile
+@profile
 def get_differences(dataframe):
     """Calculate differences between RS and PS.
 
@@ -470,24 +470,26 @@ def get_differences(dataframe):
     })
     curr_cols = frozenset(dataframe.columns)
     curr_cols_to_diff = list(curr_cols.intersection(diff_columns))
-    first = []
-    last = []
+    first = {}
+    last = {}
+    diff = {}
     for row, _ in enumerate(dataframe.index):
-        if dataframe.loc[row, 'diff_qualifier'] == 'First':
+        if dataframe.at[row, 'diff_qualifier'] == 'First':
             for col in curr_cols_to_diff:
-                first.append(dataframe.loc[row, col])
+                first[col] = dataframe.at[row, col]
 
-        elif dataframe.loc[row, 'diff_qualifier'] == 'Last':
+        elif dataframe.at[row, 'diff_qualifier'] == 'Last':
             for col in curr_cols_to_diff:
-                last.append(dataframe.loc[row, col])
+                last[col] = dataframe.at[row, col]
 
-        elif dataframe.loc[row, 'diff_qualifier'] == 'Diff':
-            counter = 0
+        elif dataframe.at[row, 'diff_qualifier'] == 'Diff':
             for col in curr_cols_to_diff:
-                dataframe.loc[row, col] = last[counter] - first[counter]
-                counter += 1
-            first = []
-            last = []
+                diff[col] = last.get(col) - first.get(col)
+            for col in curr_cols_to_diff:    
+                dataframe.at[row, col] = diff.get(col)
+            first = {}
+            last = {}
+            diff = {}
 
     return dataframe
 
@@ -560,8 +562,8 @@ def main(player_id):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--player', type=str)
-    args = parser.parse_args()
+    #parser = argparse.ArgumentParser()
+    #parser.add_argument('--player', type=str)
+    #args = parser.parse_args()
     #main(args.player)
     main('rondora01')
