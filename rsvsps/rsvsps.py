@@ -73,10 +73,13 @@ def scrape_tables(soup, label, table_type):
     Returns:
         soup for table
     """
-    playoffs_qualifier = ''
-    if label == 'PS':
-        playoffs_qualifier = 'playoffs_'
-    return soup.find(id=playoffs_qualifier + table_type)
+    qualifier_map = {'RS': '', 'PS': 'playoffs_'}
+    return soup.find(
+        id='{label}{tabletype}'.format(
+            label=qualifier_map.get(label), 
+            tabletype=table_type,
+        ),
+    )
 
 
 def scraped_table_to_list(table):
@@ -558,7 +561,6 @@ def main(player_id):
         per_minute.to_excel(writer, sheet_name='per_minute')
         per_poss.to_excel(writer, sheet_name='per_poss')
         advanced.to_excel(writer, sheet_name='advanced')
-
     return writer
 
 
@@ -566,4 +568,5 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--player', type=str)
     args = parser.parse_args()
-    main(args.player)
+    #main(args.player)
+    main('cousybo01')
