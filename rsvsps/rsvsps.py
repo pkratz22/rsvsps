@@ -59,7 +59,7 @@ def scrape_player_page(player_url):
     player_page = player_page.replace('<!--', '').replace('-->', '')
 
     soup = BeautifulSoup(player_page, 'lxml', parse_only=tables)
-    return soup
+    return soup.contents
 
 
 def scrape_tables(soup, label, table_type):
@@ -74,12 +74,9 @@ def scrape_tables(soup, label, table_type):
         soup for table
     """
     qualifier_map = {'RS': '', 'PS': 'playoffs_'}
-    return soup.find(
-        id='{label}{tabletype}'.format(
-            label=qualifier_map.get(label), 
-            tabletype=table_type,
-        ),
-    )
+    for table in soup:
+        if table.attrs['id'] == '{label}{tabletype}'.format(label=qualifier_map.get(label), tabletype=table_type):
+            return table
 
 
 def scraped_table_to_list(table):
@@ -414,7 +411,7 @@ def remove_extra_first_last(dataframe):
                 temp_row -= 1
     return dataframe
 
-
+@profile
 def get_differences(dataframe):
     """Calculate differences between RS and PS.
 
@@ -550,7 +547,7 @@ def main(player_id):
     """
     player_url = determine_player_url(player_id)
     player_page = scrape_player_page(player_url)
-
+    del player_page[0]
     per_game = player_single_table_type(player_page, 'per_game')
     per_minute = player_single_table_type(player_page, 'per_minute')
     per_poss = player_single_table_type(player_page, 'per_poss')
@@ -569,4 +566,4 @@ if __name__ == '__main__':
     parser.add_argument('--player', type=str)
     args = parser.parse_args()
     #main(args.player)
-    main('cousybo01')
+    main('abdulka01')
