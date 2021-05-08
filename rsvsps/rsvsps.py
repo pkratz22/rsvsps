@@ -485,7 +485,6 @@ def get_differences(dataframe):
         elif dataframe.at[row, 'diff_qualifier'] == 'Diff':
             for col in curr_cols_to_diff:
                 diff[col] = last.get(col) - first.get(col)
-            for col in curr_cols_to_diff:    
                 dataframe.at[row, col] = diff.get(col)
             first = {}
             last = {}
