@@ -411,7 +411,7 @@ def remove_extra_first_last(dataframe):
                 temp_row -= 1
     return dataframe
 
-@profile
+#@profile
 def get_differences(dataframe):
     """Calculate differences between RS and PS.
 
@@ -421,7 +421,7 @@ def get_differences(dataframe):
     Returns:
         dataframe with RS, PS, and differences
     """
-    diff_columns = {
+    diff_columns = frozenset({
        '"MP',
        'FG',
        'FGA',
@@ -467,27 +467,25 @@ def get_differences(dataframe):
        'DBPM',
        'BPM',
        'VORP',
-    }
+    })
+    curr_cols = frozenset(dataframe.columns)
+    curr_cols_to_diff = list(curr_cols.intersection(diff_columns))
     first = []
     last = []
     for row, _ in enumerate(dataframe.index):
-
         if dataframe.loc[row, 'diff_qualifier'] == 'First':
-            for col in diff_columns:
-                if col in dataframe:
-                    first.append(dataframe.loc[row, col])
+            for col in curr_cols_to_diff:
+                first.append(dataframe.loc[row, col])
 
         elif dataframe.loc[row, 'diff_qualifier'] == 'Last':
-            for col in diff_columns:
-                if col in dataframe:
-                    last.append(dataframe.loc[row, col])
+            for col in curr_cols_to_diff:
+                last.append(dataframe.loc[row, col])
 
         elif dataframe.loc[row, 'diff_qualifier'] == 'Diff':
             counter = 0
-            for col in diff_columns:
-                if col in dataframe:
-                    dataframe.loc[row, col] = last[counter] - first[counter]
-                    counter += 1
+            for col in curr_cols_to_diff:
+                dataframe.loc[row, col] = last[counter] - first[counter]
+                counter += 1
             first = []
             last = []
 
@@ -566,4 +564,4 @@ if __name__ == '__main__':
     parser.add_argument('--player', type=str)
     args = parser.parse_args()
     #main(args.player)
-    main('abdulka01')
+    main('rondora01')
