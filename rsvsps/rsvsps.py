@@ -22,7 +22,8 @@ def determine_player_url(player_id):
     if not player_id:
         raise SystemExit(IndexError)
     base_url = 'https://www.basketball-reference.com/players/'
-    return base_url + '{last_initial}/{ID}.html'.format(
+    return '{base}{last_initial}/{ID}.html'.format(
+        base=base_url,
         last_initial=player_id[0],
         ID=player_id,
     )
