@@ -19,7 +19,7 @@ def determine_player_url(player_id):
     Returns:
         URL for player based on ID
     """
-    if player_id == '':
+    if not player_id:
         raise SystemExit(IndexError)
     base_url = 'https://www.basketball-reference.com/players/'
     return base_url + '{last_initial}/{ID}.html'.format(
@@ -411,7 +411,7 @@ def remove_extra_first_last(dataframe):
                 temp_row -= 1
     return dataframe
 
-@profile
+
 def get_differences(dataframe):
     """Calculate differences between RS and PS.
 
@@ -475,6 +475,7 @@ def get_differences(dataframe):
     diff = {}
     for row, _ in enumerate(dataframe.index):
         if dataframe.at[row, 'diff_qualifier'] == 'First':
+            
             for col in curr_cols_to_diff:
                 first[col] = dataframe.at[row, col]
 
