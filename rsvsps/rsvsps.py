@@ -476,7 +476,7 @@ def get_differences(dataframe):
     diff = {}
     for row, _ in enumerate(dataframe.index):
         if dataframe.at[row, 'diff_qualifier'] == 'First':
-            
+
             for col in curr_cols_to_diff:
                 first[col] = dataframe.at[row, col]
 
@@ -563,8 +563,7 @@ def main(player_id):
 
 
 if __name__ == '__main__':
-    #parser = argparse.ArgumentParser()
-    #parser.add_argument('--player', type=str)
-    #args = parser.parse_args()
-    #main(args.player)
-    main('rondora01')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--player', type=str)
+    args = parser.parse_args()
+    main(args.player)
