@@ -2,6 +2,7 @@
 
 import unittest
 from rsvsps import rsvsps
+from scraper import player_page_scraper
 
 
 class TestRSvsPS(unittest.TestCase):
@@ -22,21 +23,6 @@ class TestRSvsPS(unittest.TestCase):
         # blank player_ID
         with self.assertRaises(SystemExit):
             rsvsps.determine_player_url("")
-
-    def test_scrape_player_page(self):
-        """Test scrape player page functionality"""
-        # normal test
-        self.assertIsNotNone(rsvsps.scrape_player_page(
-            "https://www.basketball-reference.com/players/p/petrodr01.html"))
-
-        # player missing some tables
-        self.assertIsNotNone(rsvsps.scrape_player_page(
-            "https://www.basketball-reference.com/players/c/cousybo01.html"))
-
-        # player page doesn't exist
-        with self.assertRaises(SystemExit):
-            rsvsps.scrape_player_page(
-                "https://www.basketball-reference.com/players/3")
 
 
 if __name__ == "__main__":

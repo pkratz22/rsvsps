@@ -3,8 +3,9 @@
 import argparse
 
 import pandas as pd
-import requests
-from bs4 import BeautifulSoup, SoupStrainer
+
+import scraper.player_page_scraper
+
 
 
 def determine_player_url(player_id):
@@ -27,40 +28,6 @@ def determine_player_url(player_id):
         last_initial=player_id[0],
         ID=player_id,
     )
-
-
-def scrape_player_page(player_url):
-    """Scrape Player Page for tables.
-
-    Raises:
-        SystemExit: HTTPError for player ID
-    
-    Args:
-        player_url: URL to scrape
-
-    Returns:
-        soup of scraped page
-    """
-    try:
-        page_request = requests.get(player_url)
-        page_request.raise_for_status()
-    except requests.exceptions.HTTPError as err:
-        raise SystemExit from err
-    player_page = page_request.text
-    tables = SoupStrainer(id=[
-        'per_game',
-        'playoffs_per_game',
-        'per_minute',
-        'playoffs_per_minute',
-        'per_poss',
-        'playoffs_per_poss',
-        'advanced',
-        'playoffs_advanced',
-    ])
-    player_page = player_page.replace('<!--', '').replace('-->', '')
-
-    soup = BeautifulSoup(player_page, 'lxml', parse_only=tables)
-    return soup.contents
 
 
 def scrape_tables(soup, label, table_type):
@@ -547,7 +514,7 @@ def main(player_id):
         An excel file with player data.
     """
     player_url = determine_player_url(player_id)
-    player_page = scrape_player_page(player_url)
+    player_page = scraper.player_page_scraper.scrape_player_page(player_url)
     del player_page[0]
     per_game = player_single_table_type(player_page, 'per_game')
     per_minute = player_single_table_type(player_page, 'per_minute')

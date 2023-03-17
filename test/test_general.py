@@ -2,6 +2,7 @@
 
 import unittest
 from rsvsps import rsvsps
+from scraper import player_page_scraper
 
 
 class TestRsvsps(unittest.TestCase):
