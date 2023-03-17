@@ -30,23 +30,6 @@ def determine_player_url(player_id):
     )
 
 
-def scrape_tables(soup, label, table_type):
-    """Scrape the PerGameTables from the Player Page.
-
-    Args:
-        soup: soup of player page
-        label: regular season or post-season
-        table_type: table type to scrape
-
-    Returns:
-        soup for table
-    """
-    qualifier_map = {'RS': '', 'PS': 'playoffs_'}
-    for table in soup:
-        if table.attrs['id'] == '{label}{tabletype}'.format(label=qualifier_map.get(label), tabletype=table_type):
-            return table
-
-
 def scraped_table_to_list(table):
     """Convert the scraped table to a multidimensional list.
 
@@ -132,7 +115,7 @@ def clean_table(soup, label, table_type):
     Returns:
         player data for label and table_type
     """
-    table = scrape_tables(soup, label, table_type)
+    table = scraper.player_page_scraper.scrape_tables(soup, label, table_type)
     if table is None:
         return None
     player_data_list = scraped_table_to_list(table)
