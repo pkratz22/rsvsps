@@ -63,3 +63,15 @@ def scraped_table_to_list(table):
         data scraped from soup of table
     """
     return [[cell.text for cell in row.find_all(['th', 'td'])] for row in table.find_all('tr')]
+
+
+def scrape_column_headers(player_data_list):
+    """Store column headers.
+
+    Args:
+        player_data_list: player data list
+
+    Returns:
+        headers for player data list
+    """
+    return player_data_list[0]

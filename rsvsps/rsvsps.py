@@ -30,18 +30,6 @@ def determine_player_url(player_id):
     )
 
 
-def scrape_column_headers(player_data_list):
-    """Store column headers.
-
-    Args:
-        player_data_list: player data list
-
-    Returns:
-        headers for player data list
-    """
-    return player_data_list[0]
-
-
 def remove_column_headers(player_data_list):
     """Remove column headers.
 
@@ -107,7 +95,7 @@ def clean_table(soup, label, table_type):
     if table is None:
         return None
     player_data_list = scraper.player_page_scraper.scraped_table_to_list(table)
-    column_headers = scrape_column_headers(player_data_list) + ['RSPS'] + ['diff_qualifier']
+    column_headers = scraper.player_page_scraper.scrape_column_headers(player_data_list) + ['RSPS'] + ['diff_qualifier']
     player_data_list = remove_column_headers(player_data_list)
     player_data_list = remove_blank_lines(player_data_list)
     player_data_list = adjustments_for_did_not_play_seasons(player_data_list)
@@ -460,7 +448,7 @@ def player_single_table_type(player_page, table_type):
     if (regular_season is None) & (post_season is None):
         return pd.DataFrame()
     combined = combine_rs_and_ps(regular_season, post_season)
-    column_headers = scrape_column_headers(combined)
+    column_headers = scraper.player_page_scraper.scrape_column_headers(combined)
     combined = remove_column_headers(combined)
     combined = add_sorting_qualifier(combined)
     combined = sort_list(combined)
