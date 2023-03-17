@@ -30,18 +30,6 @@ def determine_player_url(player_id):
     )
 
 
-def scraped_table_to_list(table):
-    """Convert the scraped table to a multidimensional list.
-
-    Args:
-        table: table to scrape
-
-    Returns:
-        data scraped from soup of table
-    """
-    return [[cell.text for cell in row.find_all(['th', 'td'])] for row in table.find_all('tr')]
-
-
 def scrape_column_headers(player_data_list):
     """Store column headers.
 
@@ -118,7 +106,7 @@ def clean_table(soup, label, table_type):
     table = scraper.player_page_scraper.scrape_tables(soup, label, table_type)
     if table is None:
         return None
-    player_data_list = scraped_table_to_list(table)
+    player_data_list = scraper.player_page_scraper.scraped_table_to_list(table)
     column_headers = scrape_column_headers(player_data_list) + ['RSPS'] + ['diff_qualifier']
     player_data_list = remove_column_headers(player_data_list)
     player_data_list = remove_blank_lines(player_data_list)

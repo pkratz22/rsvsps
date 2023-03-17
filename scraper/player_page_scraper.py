@@ -51,3 +51,15 @@ def scrape_tables(soup, label, table_type):
     for table in soup:
         if table.attrs['id'] == '{label}{tabletype}'.format(label=qualifier_map.get(label), tabletype=table_type):
             return table
+
+
+def scraped_table_to_list(table):
+    """Convert the scraped table to a multidimensional list.
+
+    Args:
+        table: table to scrape
+
+    Returns:
+        data scraped from soup of table
+    """
+    return [[cell.text for cell in row.find_all(['th', 'td'])] for row in table.find_all('tr')]
