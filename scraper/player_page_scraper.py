@@ -34,3 +34,20 @@ def scrape_player_page(player_url):
 
     soup = BeautifulSoup(player_page, 'lxml', parse_only=tables)
     return soup.contents
+
+
+def scrape_tables(soup, label, table_type):
+    """Scrape the PerGameTables from the Player Page.
+
+    Args:
+        soup: soup of player page
+        label: regular season or post-season
+        table_type: table type to scrape
+
+    Returns:
+        soup for table
+    """
+    qualifier_map = {'RS': '', 'PS': 'playoffs_'}
+    for table in soup:
+        if table.attrs['id'] == '{label}{tabletype}'.format(label=qualifier_map.get(label), tabletype=table_type):
+            return table
