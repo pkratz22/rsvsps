@@ -75,3 +75,96 @@ def scrape_column_headers(player_data_list):
         headers for player data list
     """
     return player_data_list[0]
+
+
+def remove_column_headers(player_data_list):
+    """Remove column headers.
+
+    Args:
+        player_data_list: player data list
+
+    Returns:
+        player data list without column headers
+    """
+    return player_data_list[1:]
+
+
+def remove_blank_lines(player_data_list):
+    """Remove blank lines.
+
+    Args:
+        player_data_list: player data list
+
+    Returns:
+        list with blank lines removed
+    """
+    return [year for year in player_data_list if year[0] != '']
+
+
+def adjustments_for_did_not_play_seasons(player_data_list):
+    """Corrects formatting for seasons with Did Not Play.
+
+    Args:
+        player_data_list: player data list
+
+    Returns:
+        List with formatting for DNP seasons
+    """
+    list_extender = [''] * (len(player_data_list[0]) - 3)
+    return [[*year, *list_extender] if 'Did Not Play' in year[2] else year for year in player_data_list]
+
+
+def label_rs_or_ps(player_data_list, label):
+    """Adds label of either RS or PS.
+
+    Args:
+        player_data_list: player data list
+        label: RS or PS
+
+    Returns:
+        Labels data RS or PS
+    """
+    return [[*year, label] for year in player_data_list]
+
+
+def clean_table(soup, label, table_type):
+    """Put functions for RS and PS into one.
+
+    Args:
+        soup: soup for player page
+        label: RS or PS to scrape
+        table_type: type of table to scrape
+
+    Returns:
+        player data for label and table_type
+    """
+    table = scrape_tables(soup, label, table_type)
+    if table is None:
+        return None
+    player_data_list = scraped_table_to_list(table)
+    column_headers = scrape_column_headers(player_data_list) + ['RSPS'] + ['diff_qualifier']
+    player_data_list = remove_column_headers(player_data_list)
+    player_data_list = remove_blank_lines(player_data_list)
+    player_data_list = adjustments_for_did_not_play_seasons(player_data_list)
+    player_data_list = label_rs_or_ps(player_data_list, label)
+    if label == 'RS':
+        player_data_list = [column_headers] + player_data_list
+    return player_data_list
+
+
+def combine_rs_and_ps(regular_season, post_season):
+    """Combine Regular Season and Post-Season Data into one table.
+
+    Args:
+        regular_season: player RS data for table type
+        post_season: player PS data for table type
+
+    Returns:
+        combined RS and PS table
+    """
+    total = []
+    if regular_season is not None:
+        total += regular_season
+    if post_season is not None:
+        total += post_season
+    return total

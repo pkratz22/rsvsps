@@ -54,9 +54,6 @@ class TestRsvsps(unittest.TestCase):
         # 3 point line added mid career
         self.assertIsNotNone(rsvsps.main('furlote01'))
 
-    def test_suite(self):
-        self.test_normal
-
 
 if __name__ == "__main__":
     unittest.main()
