@@ -7,7 +7,7 @@ def scrape_player_page(player_url):
 
     Raises:
         SystemExit: HTTPError for player ID
-    
+
     Args:
         player_url: URL to scrape
 

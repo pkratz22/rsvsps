@@ -7,7 +7,6 @@ import pandas as pd
 import scraper.player_page_scraper
 
 
-
 def determine_player_url(player_id):
     """Determine the Player's Page URL from player's ID.
 
