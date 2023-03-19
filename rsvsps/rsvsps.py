@@ -349,13 +349,13 @@ def player_single_table_type(player_page, table_type):
     Returns:
         dataframe of RS and PS data with comparisons
     """
-    regular_season = scraper.player_page_scraper.clean_table(player_page, 'RS', table_type)
-    post_season = scraper.player_page_scraper.clean_table(player_page, 'PS', table_type)
+    regular_season = scrapers.player_page_scrapers.clean_table(player_page, 'RS', table_type)
+    post_season = scrapers.player_page_scrapers.clean_table(player_page, 'PS', table_type)
     if (regular_season is None) & (post_season is None):
         return pd.DataFrame()
-    combined = scraper.player_page_scraper.combine_rs_and_ps(regular_season, post_season)
-    column_headers = scraper.player_page_scraper.scrape_column_headers(combined)
-    combined = scraper.player_page_scraper.remove_column_headers(combined)
+    combined = scrapers.player_page_scrapers.combine_rs_and_ps(regular_season, post_season)
+    column_headers = scrapers.player_page_scrapers.scrape_column_headers(combined)
+    combined = scrapers.player_page_scrapers.remove_column_headers(combined)
     combined = add_sorting_qualifier(combined)
     combined = sort_list(combined)
     combined = add_blank_lines(combined)
@@ -379,7 +379,7 @@ def main(player_id):
         An excel file with player data.
     """
     player_url = determine_player_url(player_id)
-    player_page = scraper.player_page_scraper.scrape_player_page(player_url)
+    player_page = scrapers.player_page_scrapers.scrape_player_page(player_url)
     del player_page[0]
     per_game = player_single_table_type(player_page, 'per_game')
     per_minute = player_single_table_type(player_page, 'per_minute')
