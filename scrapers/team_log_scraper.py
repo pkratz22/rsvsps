@@ -40,7 +40,7 @@ def scrape_tables(soup, label):
     Returns:
         soup for table
     """
-    qualifier_map = {'RS': '', 'PS': 'playoffs_'}
+    qualifier_map = {'RS': '', 'PS': '_playoffs'}
     for table in soup:
         if table.attrs['id'] == 'tgl_basic{ps_qualifier}'.format(ps_qualifier=qualifier_map[label]):
             return table
