@@ -59,7 +59,7 @@ def scraped_table_to_list(table):
     return [[cell.text for cell in row.find_all(['th', 'td'])] for row in table.find_all('tr')]
 
 
-def scrape_column_headers(player_data_list):
+def scrape_column_headers(team_data_log_list):
     """Store column headers.
 
     Args:
@@ -68,7 +68,27 @@ def scrape_column_headers(player_data_list):
     Returns:
         headers for player data list
     """
-    return player_data_list[0]
+    team_col_prefix = 'Team'
+    opponent_col_prefix = 'Opponent'
+    team_columns_headers = team_data_log_list[1]
+    team_columns_headers[0] = 'Game Number'
+    team_columns_headers[1] = 'Game Number'
+    team_columns_headers[3] = 'Home Flag'
+    team_columns_headers[6] = 'Team Points'
+    team_columns_headers[7] = 'Opponent Points'
+    num_team_cols_except_score = int((len(team_columns_headers) - 9)/2)
+    
+    for i in range(8, 8+num_team_cols_except_score):
+        team_columns_headers[i] = '{team_indicator} {stat}'.format(
+            team_indicator=team_col_prefix,
+            stat=team_columns_headers[i],
+        )
+    for i in range(len(team_columns_headers)-num_team_cols_except_score, len(team_columns_headers)):
+        team_columns_headers[i] = '{team_indicator} {stat}'.format(
+            team_indicator=opponent_col_prefix,
+            stat=team_columns_headers[i],
+        )
+    return team_columns_headers
 
 
 def remove_column_headers(player_data_list):
@@ -133,20 +153,30 @@ def clean_table(soup, label):
     table = scrape_tables(soup, label)
     if table is None:
         return None
-    player_data_list = scraped_table_to_list(table)
-    column_headers = scrape_column_headers(player_data_list) + ['RSPS'] + ['diff_qualifier']
-    player_data_list = remove_column_headers(player_data_list)
-    player_data_list = remove_blank_lines(player_data_list)
-    player_data_list = adjustments_for_did_not_play_seasons(player_data_list)
+    team_game_log_data_list = scraped_table_to_list(table)
+    column_headers = scrape_column_headers(team_game_log_data_list) + ['RSPS'] + ['diff_qualifier']
+    team_game_log_data_list = remove_column_headers(team_game_log_data_list)
+    team_game_log_data_list = remove_blank_lines(team_game_log_data_list)
+    team_game_log_data_list = adjustments_for_did_not_play_seasons(team_game_log_data_list)
     #player_data_list = label_rs_or_ps(player_data_list, label)
     #if label == 'RS':
     #    player_data_list = [column_headers] + player_data_list
-    return player_data_list
+    return team_game_log_data_list
 
 
-if __name__ == '__main__':
-    soup = scrape_team_season_log_page('https://www.basketball-reference.com/teams/MIL/2022/gamelog/')
+def temp_main(team_abbreviation, year_as_string):
+    soup = scrape_team_season_log_page(
+        'https://www.basketball-reference.com/teams/{team}/{yr}/gamelog/'.format(
+        team=team_abbreviation,
+        yr=year_as_string,
+        )
+    )
     del soup[0]
     label = 'RS'
     output = clean_table(soup, label)
-    print(output)
+    return output
+
+
+if __name__ == '__main__':
+    print(temp_main("MIL", "2022"))
+
