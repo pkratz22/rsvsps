@@ -4,7 +4,7 @@ import argparse
 
 import pandas as pd
 
-import scraper.player_page_scraper
+import scrapers.player_page_scraper
 
 
 def determine_player_url(player_id):
