@@ -3,13 +3,13 @@ from bs4 import BeautifulSoup, SoupStrainer
 
 
 def scrape_team_season_log_page(team_season_log_urls):
-    """Scrape Player Page for tables.
+    """Scrape Team Log Page for tables.
 
     Raises:
-        SystemExit: HTTPError for player ID
+        SystemExit: HTTPError for team season
 
     Args:
-        player_url: URL to scrape
+        team_game_log_data_list: URL to scrape
 
     Returns:
         soup of scraped page
@@ -31,12 +31,11 @@ def scrape_team_season_log_page(team_season_log_urls):
 
 
 def scrape_tables(soup, label):
-    """Scrape the PerGameTables from the Player Page.
+    """Scrape game log tables.
 
     Args:
-        soup: soup of player page
+        soup: soup of team log page
         label: regular season or post-season
-        table_type: table type to scrape
 
     Returns:
         soup for table
@@ -63,10 +62,10 @@ def scrape_column_headers(team_data_log_list):
     """Store column headers.
 
     Args:
-        player_data_list: player data list
+        team_game_log_data_list: team game log data list
 
     Returns:
-        headers for player data list
+        headers for team game log table
     """
     team_col_prefix = 'Team'
     opponent_col_prefix = 'Opponent'
@@ -91,64 +90,32 @@ def scrape_column_headers(team_data_log_list):
     return team_columns_headers
 
 
-def remove_column_headers(player_data_list):
+def remove_column_headers(team_data_log_list):
     """Remove column headers.
 
     Args:
-        player_data_list: player data list
+        team_game_log_data_list: team game log data list
 
     Returns:
-        player data list without column headers
+        team game log data list without column headers
     """
-    return player_data_list[1:]
+    header_col_type_1 = team_data_log_list[0]
+    header_col_type_2 = team_data_log_list[1]
+    team_data_log_column_headers_removed = []
+    for row in team_data_log_list:
+        if row != header_col_type_1 and row != header_col_type_2:
+            team_data_log_column_headers_removed.append(row)
+    return team_data_log_column_headers_removed
 
 
-def remove_blank_lines(player_data_list):
-    """Remove blank lines.
-
-    Args:
-        player_data_list: player data list
-
-    Returns:
-        list with blank lines removed
-    """
-    return [year for year in player_data_list if year[0] != '']
-
-
-def adjustments_for_did_not_play_seasons(player_data_list):
-    """Corrects formatting for seasons with Did Not Play.
-
-    Args:
-        player_data_list: player data list
-
-    Returns:
-        List with formatting for DNP seasons
-    """
-    list_extender = [''] * (len(player_data_list[0]) - 3)
-    return [[*year, *list_extender] if 'Did Not Play' in year[2] else year for year in player_data_list]
-
-
-def label_rs_or_ps(player_data_list, label):
-    """Adds label of either RS or PS.
-
-    Args:
-        player_data_list: player data list
-        label: RS or PS
-
-    Returns:
-        Labels data RS or PS
-    """
-    return [[*year, label] for year in player_data_list]
-
-
-def clean_table(soup, label):
+def get_log_for_team_season_and_season_type(soup, label):
     """Put functions for RS and PS into one.
 
     Args:
-        soup: soup for player page
+        soup: soup for team data log page
 
     Returns:
-        player data for label and table_type
+        team log data table
     """
     table = scrape_tables(soup, label)
     if table is None:
@@ -156,27 +123,5 @@ def clean_table(soup, label):
     team_game_log_data_list = scraped_table_to_list(table)
     column_headers = scrape_column_headers(team_game_log_data_list) + ['RSPS'] + ['diff_qualifier']
     team_game_log_data_list = remove_column_headers(team_game_log_data_list)
-    team_game_log_data_list = remove_blank_lines(team_game_log_data_list)
-    team_game_log_data_list = adjustments_for_did_not_play_seasons(team_game_log_data_list)
-    #player_data_list = label_rs_or_ps(player_data_list, label)
-    #if label == 'RS':
-    #    player_data_list = [column_headers] + player_data_list
+    team_game_log_data_list = [column_headers] + team_game_log_data_list
     return team_game_log_data_list
-
-
-def temp_main(team_abbreviation, year_as_string):
-    soup = scrape_team_season_log_page(
-        'https://www.basketball-reference.com/teams/{team}/{yr}/gamelog/'.format(
-        team=team_abbreviation,
-        yr=year_as_string,
-        )
-    )
-    del soup[0]
-    label = 'RS'
-    output = clean_table(soup, label)
-    return output
-
-
-if __name__ == '__main__':
-    print(temp_main("MIL", "2022"))
-
