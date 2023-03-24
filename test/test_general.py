@@ -1,12 +1,16 @@
 """Test overall script for players"""
 
+import time
 import unittest
+
 from rsvsps import rsvsps
-from scraper import player_page_scraper
 
 
 class TestRsvsps(unittest.TestCase):
     """General test cases for entire process"""
+
+    def tearDown(self) -> None:
+        time.sleep(60)
 
     def test_normal(self):
         """Test players with normal careers"""

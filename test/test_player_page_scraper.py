@@ -1,11 +1,15 @@
 """Test rsvsps file"""
 
+import time
 import unittest
-from scraper import player_page_scraper
+from scrapers import player_page_scraper
 
 
 class TestRSvsPS(unittest.TestCase):
     """Test cases for each aspect of code"""
+
+    def tearDown(self) -> None:
+        time.sleep(60)
 
     def test_scrape_player_page(self):
         """Test scrape player page functionality"""

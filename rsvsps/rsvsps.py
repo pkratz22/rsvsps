@@ -4,53 +4,7 @@ import argparse
 
 import pandas as pd
 
-import scrapers.player_page_scraper
-
-
-def determine_player_url(player_id):
-    """Determine the Player's Page URL from player's ID.
-
-    Raises:
-        SystemExit: index error if ID blank
-
-    Args:
-        player_id: inputted player ID
-
-    Returns:
-        URL for player based on ID
-    """
-    if not player_id:
-        raise SystemExit(IndexError)
-    base_url = 'https://www.basketball-reference.com/players/'
-    return '{base}{last_initial}/{ID}.html'.format(
-        base=base_url,
-        last_initial=player_id[0],
-        ID=player_id,
-    )
-
-
-def add_sorting_qualifier(player_data_list):
-    """Add an element to each row that can be used to properly sort.
-
-    Args:
-        player_data_list: player data list
-
-    Returns:
-        player data list with 'column' for a sorting qualifier
-    """
-    return [[*year, '1' + year[2]] if 'season' in year[0] else [*year, '2'] if 'Career' in year[0] else [*year, '0' + year[0]] for year in player_data_list]
-
-
-def sort_list(player_data_list):
-    """Sort list based on qualifer.
-
-    Args:
-        player_data_list: player data list
-
-    Returns:
-        player data list properly sorted
-    """
-    return sorted(player_data_list, key=lambda x: x[-1])
+from scrapers import player_page_scraper
 
 
 def remove_sorting_column(player_data_list):
@@ -79,7 +33,7 @@ def add_blank_lines(player_data_list):
     upper_bound = len(player_data_list) - 1
     row = 0
     while row < upper_bound:
-        if ((player_data_list[row][0] != '') & (player_data_list[row + 1][0] != '') & (player_data_list[row][-1] != player_data_list[row + 1][-1])):
+        if (player_data_list[row][0] != '') & (player_data_list[row + 1][0] != '') & (player_data_list[row][-1] != player_data_list[row + 1][-1]):
             player_data_list = player_data_list[:row + 1] + [[''] * length_appended] + player_data_list[row + 1:]
             upper_bound += 1
         row += 1
@@ -122,7 +76,7 @@ def dataframe_data_types(dataframe, table_type):
         Creates column headers for dataframe
     """
     cols = []
-    if (table_type in {'per_game', 'per_minute', 'per_poss'}):
+    if table_type in {'per_game', 'per_minute', 'per_poss'}:
         possible_columns = [
             'G',
             'GS',
@@ -208,11 +162,11 @@ def determine_rows_to_fill(dataframe):
             dataframe.loc[row, 'diff_qualifier'] = 'Diff'
 
     for row, _ in enumerate(dataframe.index):
-        if (dataframe.loc[row, 'diff_qualifier'] != 'Diff' and (row == 0 or dataframe.loc[row - 1, 'diff_qualifier'] == 'Diff')):
+        if dataframe.loc[row, 'diff_qualifier'] != 'Diff' and (row == 0 or dataframe.loc[row - 1, 'diff_qualifier'] == 'Diff'):
             dataframe.loc[row, 'diff_qualifier'] = 'First'
 
     for row, _ in enumerate(dataframe.index):
-        if (dataframe.loc[row, 'diff_qualifier'] != 'Diff' and (dataframe.loc[row + 1, 'diff_qualifier'] == 'Diff' and dataframe.loc[row, 'RSPS'] == 'PS')):
+        if dataframe.loc[row, 'diff_qualifier'] != 'Diff' and (dataframe.loc[row + 1, 'diff_qualifier'] == 'Diff' and dataframe.loc[row, 'RSPS'] == 'PS'):
             dataframe.loc[row, 'diff_qualifier'] = 'Last'
 
     return dataframe
@@ -339,25 +293,19 @@ def remove_diff_qualifier_column(dataframe):
     return dataframe.iloc[:, :-1]
 
 
-def player_single_table_type(player_page, table_type):
+def player_single_table_type(player_id, table_type):
     """Get specific single table for player.
 
     Args:
-        player_page: player page to get table from
+        player_id: player id to get table for
         table_type: table type to get info about
 
     Returns:
         dataframe of RS and PS data with comparisons
     """
-    regular_season = scrapers.player_page_scrapers.clean_table(player_page, 'RS', table_type)
-    post_season = scrapers.player_page_scrapers.clean_table(player_page, 'PS', table_type)
-    if (regular_season is None) & (post_season is None):
-        return pd.DataFrame()
-    combined = scrapers.player_page_scrapers.combine_rs_and_ps(regular_season, post_season)
-    column_headers = scrapers.player_page_scrapers.scrape_column_headers(combined)
-    combined = scrapers.player_page_scrapers.remove_column_headers(combined)
-    combined = add_sorting_qualifier(combined)
-    combined = sort_list(combined)
+    (column_headers, combined) = player_page_scraper.main(player_id, table_type)
+    if (column_headers, combined) == (None, None):
+        return None
     combined = add_blank_lines(combined)
     combined = remove_sorting_column(combined)
     combined = add_qualifier_col_diff(combined)
@@ -378,19 +326,21 @@ def main(player_id):
     Returns:
         An excel file with player data.
     """
-    player_url = determine_player_url(player_id)
-    player_page = scrapers.player_page_scrapers.scrape_player_page(player_url)
-    del player_page[0]
-    per_game = player_single_table_type(player_page, 'per_game')
-    per_minute = player_single_table_type(player_page, 'per_minute')
-    per_poss = player_single_table_type(player_page, 'per_poss')
-    advanced = player_single_table_type(player_page, 'advanced')
+
+    per_game = player_single_table_type(player_id, 'per_game')
+    per_minute = player_single_table_type(player_id, 'per_minute')
+    per_poss = player_single_table_type(player_id, 'per_poss')
+    advanced = player_single_table_type(player_id, 'advanced')
 
     with pd.ExcelWriter('output/{player}.xlsx'.format(player=player_id), engine='xlsxwriter') as writer:
-        per_game.to_excel(writer, sheet_name='per_game')
-        per_minute.to_excel(writer, sheet_name='per_minute')
-        per_poss.to_excel(writer, sheet_name='per_poss')
-        advanced.to_excel(writer, sheet_name='advanced')
+        if per_game is not None:
+            per_game.to_excel(writer, sheet_name='per_game')
+        if per_game is not None:
+            per_minute.to_excel(writer, sheet_name='per_minute')
+        if per_poss is not None:
+            per_poss.to_excel(writer, sheet_name='per_poss')
+        if advanced is not None:
+            advanced.to_excel(writer, sheet_name='advanced')
     return writer
 
 
