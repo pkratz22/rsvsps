@@ -268,7 +268,7 @@ def write_output(team_log_data, team, season, post_season_bool):
         post_season_ext = '_post_season'
     else:
         post_season_ext = '_regular_season'
-    fname = '{team}_{season}{post_season_bool}.csv'.format(
+    fname = 'output/{team}_{season}{post_season_bool}.csv'.format(
         team=team,
         season=season,
         post_season_bool=post_season_ext,
