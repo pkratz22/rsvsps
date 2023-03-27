@@ -9,9 +9,6 @@ from rsvsps import rsvsps
 class TestRsvsps(unittest.TestCase):
     """General test cases for entire process"""
 
-    def tearDown(self) -> None:
-        time.sleep(60)
-
     def test_normal(self):
         """Test players with normal careers"""
         # normal test

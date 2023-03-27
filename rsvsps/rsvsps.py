@@ -4,7 +4,7 @@ import argparse
 
 import pandas as pd
 
-from scrapers import player_page_scraper
+from rsvsps.scrapers import player_page_scraper
 
 
 def remove_sorting_column(player_data_list):
@@ -293,7 +293,7 @@ def remove_diff_qualifier_column(dataframe):
     return dataframe.iloc[:, :-1]
 
 
-def player_single_table_type(player_id, table_type):
+def player_single_table_type(column_headers, combined, table_type):
     """Get specific single table for player.
 
     Args:
@@ -303,7 +303,6 @@ def player_single_table_type(player_id, table_type):
     Returns:
         dataframe of RS and PS data with comparisons
     """
-    (column_headers, combined) = player_page_scraper.main(player_id, table_type)
     if (column_headers, combined) == (None, None):
         return None
     combined = add_blank_lines(combined)
@@ -327,10 +326,17 @@ def main(player_id):
         An excel file with player data.
     """
 
-    per_game = player_single_table_type(player_id, 'per_game')
-    per_minute = player_single_table_type(player_id, 'per_minute')
-    per_poss = player_single_table_type(player_id, 'per_poss')
-    advanced = player_single_table_type(player_id, 'advanced')
+    (
+        (per_game_column_headers, per_game_combined),
+        (per_minute_column_headers, per_minute_combined),
+        (per_poss_column_headers, per_poss_combined),
+        (advanced_column_headers, advanced_combined),
+    ) = player_page_scraper.main(player_id, 'all')
+    per_game = player_single_table_type(per_game_column_headers, per_game_combined, 'per_game')
+    per_minute = player_single_table_type(per_minute_column_headers, per_minute_combined, 'per_minute')
+    per_poss = player_single_table_type(per_poss_column_headers, per_poss_combined, 'per_poss')
+    advanced = player_single_table_type(advanced_column_headers, advanced_combined, 'advanced')
+
 
     with pd.ExcelWriter('output/{player}.xlsx'.format(player=player_id), engine='xlsxwriter') as writer:
         if per_game is not None:

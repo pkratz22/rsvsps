@@ -223,9 +223,7 @@ def sort_list(player_data_list):
     return sorted(player_data_list, key=lambda x: x[-1])
 
 
-def main(player_id, table_type):
-    player_url = determine_player_url(player_id)
-    player_page = scrape_player_page(player_url)
+def get_table_data(player_page, table_type):
     regular_season = clean_table(player_page, 'RS', table_type)
     post_season = clean_table(player_page, 'PS', table_type)
     if (regular_season is None) & (post_season is None):
@@ -236,6 +234,27 @@ def main(player_id, table_type):
     combined = add_sorting_qualifier(combined)
     combined = sort_list(combined)
     return column_headers, combined
+
+
+def main(player_id, table_type):
+    player_url = determine_player_url(player_id)
+    player_page = scrape_player_page(player_url) # returns soup
+    
+    if table_type == 'all':
+        per_game_column_headers, per_game_combined = get_table_data(player_page, 'per_game')
+        per_minute_column_headers, per_minute_combined = get_table_data(player_page, 'per_minute')
+        per_poss_column_headers, per_poss_combined = get_table_data(player_page, 'per_poss')
+        advanced_column_headers, advanced_combined = get_table_data(player_page, 'advanced')
+        return (
+            (per_game_column_headers, per_game_combined),
+            (per_minute_column_headers, per_minute_combined),
+            (per_poss_column_headers, per_poss_combined),
+            (advanced_column_headers, advanced_combined),
+        )
+    else:
+        return get_table_data(player_page, table_type)
+
+
 
 
 if __name__ == '__main__':
