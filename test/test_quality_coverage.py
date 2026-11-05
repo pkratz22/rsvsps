@@ -408,6 +408,7 @@ class TestRsVsPsCoverage(unittest.TestCase):
         self.assertEqual(mismatch_frame.loc[2, 'diff_qualifier'], '')
 
     def test_main_writes_output(self):
+        script_path = os.path.abspath(rsvsps.__file__)
         synthetic = (
             (['Season', 'Age', 'Team', 'Lg', 'Pos', 'FG', 'PTS', 'RSPS', 'diff_qualifier'], [
                 ['1989-90', '25', 'POR', 'NBA', 'SG', '10', '100', 'RS', ''],
@@ -458,7 +459,7 @@ class TestRsVsPsCoverage(unittest.TestCase):
                 with mock.patch.object(sys, 'argv', ['rsvsps.py', '--player', 'petrodr01']):
                     with mock.patch.object(rsvsps.player_page_scraper, 'main', return_value=synthetic):
                         runpy.run_path(
-                            '/Users/peterkratz/Documents/rsvsps/rsvsps/rsvsps.py',
+                            script_path,
                             run_name='__main__',
                             init_globals={'main': rsvsps.main},
                         )
