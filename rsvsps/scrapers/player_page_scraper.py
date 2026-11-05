@@ -1,7 +1,29 @@
 import argparse
+import time
 
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
+
+
+def fetch_with_retries(url, timeout=10, max_retries=3):
+    """Retry transient HTTP failures while keeping the requests API easy to mock."""
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, timeout=timeout)
+        except requests.exceptions.RequestException:
+            if attempt == max_retries - 1:
+                raise
+            time.sleep(0.5 * (attempt + 1))
+            continue
+
+        if response.status_code == 200:
+            return response
+        if response.status_code in {429, 500, 502, 503, 504} and attempt < max_retries - 1:
+            time.sleep(0.5 * (attempt + 1))
+            continue
+        return response
+
+    raise requests.exceptions.RequestException('Failed to fetch {0}'.format(url))
 
 
 def determine_player_url(player_id):
@@ -40,11 +62,10 @@ def scrape_player_page(player_url):
         soup of scraped page
     """
     try:
-        page_request = requests.get(player_url)
-        page_request.raise_for_status()
-    except requests.exceptions.HTTPError as err:
+        page_request = fetch_with_retries(player_url)
+    except requests.exceptions.RequestException as err:
         raise SystemExit from err
-    
+
     if page_request.status_code != 200:
         raise SystemExit('HTTP Error: {0}'.format(page_request.status_code))
 
@@ -78,7 +99,7 @@ def scrape_tables(soup, label, table_type):
     """
     qualifier_map = {'RS': '', 'PS': 'playoffs_'}
     for table in soup:
-        if table.attrs['id'] == '{label}{tabletype}'.format(label=qualifier_map.get(label), tabletype=table_type):
+        if 'id' in table.attrs and table.attrs['id'] == '{label}{tabletype}'.format(label=qualifier_map.get(label), tabletype=table_type):
             return table
 
 
@@ -127,7 +148,7 @@ def remove_blank_lines(player_data_list):
     Returns:
         list with blank lines removed
     """
-    return [year for year in player_data_list if year[0] != '']
+    return [year for year in player_data_list if year and year[0] != '']
 
 
 def adjustments_for_did_not_play_seasons(player_data_list):
@@ -139,8 +160,19 @@ def adjustments_for_did_not_play_seasons(player_data_list):
     Returns:
         List with formatting for DNP seasons
     """
-    list_extender = [''] * (len(player_data_list[0]) - 3)
-    return [[*year, *list_extender] if 'Did Not Play' in year[2] else year for year in player_data_list]
+    if not player_data_list:
+        return []
+
+    header_length = len(player_data_list[0])
+    adjusted_rows = []
+    for year in player_data_list:
+        row_text = ' '.join(year).lower()
+        if 'did not play' in row_text:
+            pad_length = max(0, header_length - len(year))
+            adjusted_rows.append([*year, *([''] * pad_length)])
+        else:
+            adjusted_rows.append(year)
+    return adjusted_rows
 
 
 def label_rs_or_ps(player_data_list, label):
@@ -171,9 +203,13 @@ def clean_table(soup, label, table_type):
     if table is None:
         return None
     player_data_list = scraped_table_to_list(table)
+    if not player_data_list:
+        return None
     column_headers = scrape_column_headers(player_data_list) + ['RSPS'] + ['diff_qualifier']
     player_data_list = remove_column_headers(player_data_list)
     player_data_list = remove_blank_lines(player_data_list)
+    if not player_data_list:
+        return None
     player_data_list = adjustments_for_did_not_play_seasons(player_data_list)
     player_data_list = label_rs_or_ps(player_data_list, label)
     if label == 'RS':
@@ -226,9 +262,11 @@ def sort_list(player_data_list):
 def get_table_data(player_page, table_type):
     regular_season = clean_table(player_page, 'RS', table_type)
     post_season = clean_table(player_page, 'PS', table_type)
-    if (regular_season is None) & (post_season is None):
+    if (regular_season is None) and (post_season is None):
         return None, None
     combined = combine_rs_and_ps(regular_season, post_season)
+    if not combined:
+        return None, None
     column_headers = scrape_column_headers(combined)
     combined = remove_column_headers(combined)
     combined = add_sorting_qualifier(combined)

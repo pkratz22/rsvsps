@@ -3,3 +3,6 @@
 .mypy_cache/**
 .vscode/**
 .idea/**
+.coverage
+coverage.xml
+*.xlsx

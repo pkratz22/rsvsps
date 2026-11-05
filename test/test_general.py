@@ -1,11 +1,16 @@
 """Test overall script for players"""
 
+import os
 import time
 import unittest
 
 from rsvsps import rsvsps
 
 
+@unittest.skipUnless(
+    os.environ.get('RUN_LIVE_SCRAPER_TESTS', '').lower() in {'1', 'true', 'yes'},
+    'live basketball-reference tests are disabled by default to avoid rate limiting',
+)
 class TestRsvsps(unittest.TestCase):
     """General test cases for entire process"""
 

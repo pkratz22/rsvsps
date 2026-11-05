@@ -1,6 +1,7 @@
 """Create excel sheet comparing players Regular Seasons and Post-Seasons."""
 
 import argparse
+import os
 
 import pandas as pd
 
@@ -166,7 +167,7 @@ def determine_rows_to_fill(dataframe):
             dataframe.loc[row, 'diff_qualifier'] = 'First'
 
     for row, _ in enumerate(dataframe.index):
-        if dataframe.loc[row, 'diff_qualifier'] != 'Diff' and (dataframe.loc[row + 1, 'diff_qualifier'] == 'Diff' and dataframe.loc[row, 'RSPS'] == 'PS'):
+        if dataframe.loc[row, 'diff_qualifier'] != 'Diff' and (row + 1 < len(dataframe.index) and dataframe.loc[row + 1, 'diff_qualifier'] == 'Diff' and dataframe.loc[row, 'RSPS'] == 'PS'):
             dataframe.loc[row, 'diff_qualifier'] = 'Last'
 
     return dataframe
@@ -338,10 +339,11 @@ def main(player_id):
     advanced = player_single_table_type(advanced_column_headers, advanced_combined, 'advanced')
 
 
+    os.makedirs('output', exist_ok=True)
     with pd.ExcelWriter('output/{player}.xlsx'.format(player=player_id), engine='xlsxwriter') as writer:
         if per_game is not None:
             per_game.to_excel(writer, sheet_name='per_game')
-        if per_game is not None:
+        if per_minute is not None:
             per_minute.to_excel(writer, sheet_name='per_minute')
         if per_poss is not None:
             per_poss.to_excel(writer, sheet_name='per_poss')

@@ -2,9 +2,32 @@
 
 import argparse
 import csv
+import os
+import time
 
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
+
+
+def fetch_with_retries(url, timeout=10, max_retries=3):
+    """Retry transient HTTP failures while keeping the requests API easy to mock."""
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, timeout=timeout)
+        except requests.exceptions.RequestException:
+            if attempt == max_retries - 1:
+                raise
+            time.sleep(0.5 * (attempt + 1))
+            continue
+
+        if response.status_code == 200:
+            return response
+        if response.status_code in {429, 500, 502, 503, 504} and attempt < max_retries - 1:
+            time.sleep(0.5 * (attempt + 1))
+            continue
+        return response
+
+    raise requests.exceptions.RequestException('Failed to fetch {0}'.format(url))
 
 
 def scrape_team_season_log_page(team_season_log_urls):
@@ -20,7 +43,7 @@ def scrape_team_season_log_page(team_season_log_urls):
         soup of scraped page
     """
     try:
-        page_request = requests.get(team_season_log_urls, timeout=5)
+        page_request = fetch_with_retries(team_season_log_urls)
     except requests.exceptions.RequestException as err:
         raise SystemExit from err
 
@@ -50,7 +73,7 @@ def scrape_tables(soup, label):
     """
     qualifier_map = {False: '', True: '_playoffs'}
     for table in soup:
-        if table.attrs['id'] == 'tgl_basic{ps_qualifier}'.format(ps_qualifier=qualifier_map[label]):
+        if 'id' in table.attrs and table.attrs['id'] == 'tgl_basic{ps_qualifier}'.format(ps_qualifier=qualifier_map[label]):
             return table
 
 
@@ -158,10 +181,8 @@ def update_teams_to_home_and_away(team_log_data, team, home_flag_col_num):
         else:
             row.insert(4, row[home_flag_col_num + 1])
             row[5] = team
-            if row[6] == 'W':
-                row[6] = 'L'
-            elif row[6] == 'L':
-                row[6] = 'W'
+            if row[6] in {'W', 'L'}:
+                row[6] = {'W': 'L', 'L': 'W'}[row[6]]
     team_log_data[0][6] = 'Home Team Result'
 
     for row_num, _ in enumerate(team_log_data):
@@ -274,6 +295,7 @@ def write_output(team_log_data, team, season, post_season_bool):
         post_season_bool=post_season_ext,
     )
 
+    os.makedirs(os.path.dirname(fname), exist_ok=True)
     with open(fname, 'w', newline='') as my_csv:
         csv_writer = csv.writer(my_csv)
         csv_writer.writerows(team_log_data)
@@ -294,12 +316,16 @@ def get_output_for_team(team, season, post_season_bool):
     soup = scrape_team_season_log_page(url)
     output = []
     if post_season_bool is None:
-        output.extend(get_log_for_team_season_and_season_type(soup, label=False, team=team))
+        regular_season = get_log_for_team_season_and_season_type(soup, label=False, team=team)
+        if regular_season is not None:
+            output.extend(regular_season)
         postseason = get_log_for_team_season_and_season_type(soup, label=True, team=team)
         if postseason is not None:
             output.extend(postseason[1:])
     else:
-        output.extend(get_log_for_team_season_and_season_type(soup, post_season_bool, team))
+        table_data = get_log_for_team_season_and_season_type(soup, post_season_bool, team)
+        if table_data is not None:
+            output.extend(table_data)
     return output
 
 

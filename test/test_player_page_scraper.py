@@ -1,10 +1,15 @@
 """Test rsvsps file"""
 
+import os
 import time
 import unittest
 from rsvsps.scrapers import player_page_scraper
 
 
+@unittest.skipUnless(
+    os.environ.get('RUN_LIVE_SCRAPER_TESTS', '').lower() in {'1', 'true', 'yes'},
+    'live basketball-reference tests are disabled by default to avoid rate limiting',
+)
 class TestRSvsPS(unittest.TestCase):
     """Test cases for each aspect of code"""
 
