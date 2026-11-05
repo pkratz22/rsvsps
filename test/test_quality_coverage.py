@@ -88,7 +88,8 @@ class TestPlayerPageCoverage(unittest.TestCase):
         with mock.patch.object(player_page_scraper, 'clean_table', side_effect=[[], None]):
             self.assertEqual(player_page_scraper.get_table_data([], 'per_game'), (None, None))
 
-        with mock.patch.object(player_page_scraper, 'get_table_data', side_effect=[
+        with mock.patch.object(player_page_scraper, 'scrape_player_page', return_value=None), \
+                mock.patch.object(player_page_scraper, 'get_table_data', side_effect=[
             (['Season', 'FG'], [['1989-90', '10', 'RS', '']]),
             (['Season', 'FG'], [['1989-90', '10', 'RS', '']]),
             (['Season', 'FG'], [['1989-90', '10', 'RS', '']]),
